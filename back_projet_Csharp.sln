@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "back_projet_Csharp", "back_projet_Csharp\back_projet_Csharp.csproj", "{95C3EDE5-CA92-4253-9978-0D5E8FA56400}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BB1A47DC-6717-4B58-8C2C-F9646D2B5081}"
+	ProjectSection(SolutionItems) = preProject
+		CLAUDE.md = CLAUDE.md
+		compose.yaml = compose.yaml
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{95C3EDE5-CA92-4253-9978-0D5E8FA56400}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95C3EDE5-CA92-4253-9978-0D5E8FA56400}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95C3EDE5-CA92-4253-9978-0D5E8FA56400}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95C3EDE5-CA92-4253-9978-0D5E8FA56400}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

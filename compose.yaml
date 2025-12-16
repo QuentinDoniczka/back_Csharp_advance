@@ -1,0 +1,7 @@
+﻿services:
+  back_projet_csharp:
+    image: back_projet_csharp
+    build:
+      context: .
+      dockerfile: back_projet_Csharp/Dockerfile
+

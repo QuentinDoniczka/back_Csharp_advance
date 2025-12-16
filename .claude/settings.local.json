@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(tree:*)",
+      "Bash(dir /b \"C:\\Users\\donic\\RiderProjects\\back_projet_Csharp\")",
+      "Bash(dotnet add:*)",
+      "Bash(dir:*)",
+      "Bash(done)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
