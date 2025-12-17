@@ -1,6 +1,6 @@
 namespace back_projet_Csharp;
 
-public class WeatherForecast
+public class eatherForecast
 {
     public DateOnly Date { get; set; }
 
