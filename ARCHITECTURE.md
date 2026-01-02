@@ -8,11 +8,10 @@ Ce guide explique comment créer et organiser une architecture .NET backend en 4
 
 ```
 Solution: back_projet_Csharp
-│
-├── back_projet_Csharp.Domain          [Class Library]
-├── back_projet_Csharp.Application     [Class Library]
-├── back_projet_Csharp.Infrastructure  [Class Library]
-└── back_projet_Csharp.API             [ASP.NET Core Web API]
+├── Domain          [Class Library]
+├── Application     [Class Library]
+├── Infrastructure  [Class Library]
+└── API             [ASP.NET Core Web API]
 ```
 
 ### Règle de dépendances
@@ -25,17 +24,23 @@ Infrastructure → Domain
 
 **Principe clé :** Domain ne dépend de RIEN. Tout dépend de Domain.
 
+**Pourquoi cette structure ?**
+- **Domain** : Logique métier pure, indépendante de toute technologie
+- **Application** : Orchestration et définition des besoins (interfaces)
+- **Infrastructure** : Implémentations techniques (BDD, APIs externes)
+- **API** : Point d'entrée HTTP, configuration et injection de dépendances
+
 ---
 
 ## 1. Domain (Class Library)
 
 ### Type de projet
-**Class Library** - `dotnet new classlib`
+**Class Library** - `dotnet new classlib -n back_projet_Csharp.Domain`
 
 ### Responsabilité
-Cœur métier de l'application. Logique business pure, sans dépendances techniques.
+Cœur métier de l'application. **Logique business pure, sans dépendances techniques.**
 
-### Contenu
+### Structure
 
 ```
 Domain/
@@ -49,94 +54,81 @@ Domain/
 │   ├── InvalidOrderException.cs
 │   └── DomainException.cs
 │
-├── Enums/                     # Énumérations métier (optionnel)
+├── Enums/                     # Énumérations métier
 │   ├── OrderStatus.cs
 │   └── UserRole.cs
 │
-└── ValueObjects/              # Value Objects (optionnel, DDD)
+└── ValueObjects/              # Value Objects (DDD - optionnel)
     ├── Email.cs
     └── Money.cs
 ```
 
-### Exemple de code
+### À quoi servent les différents éléments ?
 
+**Models (Entités)**
+- **Utilité** : Représentent les objets métier avec leur état et comportement
+- **Prototype** :
 ```csharp
-// Models/User.cs
-namespace back_projet_Csharp.Domain.Models;
-
 public class User
 {
     public int Id { get; private set; }
     public string Email { get; private set; }
-    public string PasswordHash { get; private set; }
-    public bool IsActive { get; private set; }
-    public DateTime CreatedAt { get; private set; }
 
-    // Constructor privé pour forcer l'utilisation de méthodes factory
-    private User() { }
-
-    public static User Create(string email, string passwordHash)
-    {
-        return new User
-        {
-            Email = email,
-            PasswordHash = passwordHash,
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow
-        };
-    }
-
-    // Logique métier dans l'entité
-    public void Activate()
-    {
-        if (IsActive)
-            throw new InvalidOperationException("User is already active");
-        IsActive = true;
-    }
-
-    public void Deactivate()
-    {
-        if (!IsActive)
-            throw new InvalidOperationException("User is already inactive");
-        IsActive = false;
-    }
+    public static User Create(string email, string passwordHash) { }
+    public void Activate() { }
+    public void Deactivate() { }
 }
+```
 
-// Exceptions/UserNotFoundException.cs
-namespace back_projet_Csharp.Domain.Exceptions;
-
+**Exceptions**
+- **Utilité** : Représentent les erreurs métier spécifiques au domaine
+- **Prototype** :
+```csharp
 public class UserNotFoundException : Exception
 {
     public int UserId { get; }
-
-    public UserNotFoundException(int userId)
-        : base($"User with ID {userId} was not found.")
-    {
-        UserId = userId;
-    }
+    public UserNotFoundException(int userId) : base($"User {userId} not found") { }
 }
 ```
 
-### Dépendances NuGet
-**AUCUNE** - Le Domain doit rester pur, sans dépendances externes.
-
-### Commande de création
-
-```bash
-dotnet new classlib -n back_projet_Csharp.Domain
+**Enums**
+- **Utilité** : Définissent des valeurs fixes du domaine métier
+- **Prototype** :
+```csharp
+public enum OrderStatus
+{
+    Pending,
+    Confirmed,
+    Shipped,
+    Delivered
+}
 ```
+
+**ValueObjects**
+- **Utilité** : Objets immuables représentant des concepts métier (DDD avancé)
+- **Prototype** :
+```csharp
+public class Email
+{
+    public string Value { get; }
+    public Email(string value) { /* validation */ }
+}
+```
+
+### Dépendances
+**AUCUNE** - Le Domain doit rester pur, sans dépendances externes.
 
 ---
 
 ## 2. Application (Class Library)
 
 ### Type de projet
-**Class Library** - `dotnet new classlib`
+**Class Library** - `dotnet new classlib -n back_projet_Csharp.Application`
 
 ### Responsabilité
-Logique applicative, orchestration, cas d'usage. Coordonne le Domain et définit les interfaces.
+**Orchestration des cas d'usage et définition des besoins.** Coordonne le Domain et définit les interfaces (contrats).
 
-### Contenu
+### Structure
 
 ```
 Application/
@@ -165,151 +157,103 @@ Application/
     └── CreateUserValidator.cs
 ```
 
-### Exemple de code
+### À quoi servent les différents éléments ?
 
+**DTOs/Requests**
+- **Utilité** : Objets reçus depuis l'API (ce que l'utilisateur envoie)
+- **Prototype** :
 ```csharp
-// DTOs/Requests/CreateUserRequest.cs
-namespace back_projet_Csharp.Application.DTOs.Requests;
-
 public class CreateUserRequest
 {
     public string Email { get; set; }
     public string Password { get; set; }
 }
+```
 
-// DTOs/Responses/UserResponse.cs
-namespace back_projet_Csharp.Application.DTOs.Responses;
-
+**DTOs/Responses**
+- **Utilité** : Objets renvoyés à l'API (ce qu'on expose à l'utilisateur, sans données sensibles)
+- **Prototype** :
+```csharp
 public class UserResponse
 {
     public int Id { get; set; }
     public string Email { get; set; }
     public bool IsActive { get; set; }
-    public DateTime CreatedAt { get; set; }
+    // Pas de PasswordHash exposé !
 }
+```
 
-// Interfaces/IServices/IUserService.cs
-namespace back_projet_Csharp.Application.Interfaces.IServices;
-
+**Interfaces/IServices**
+- **Utilité** : Définit les contrats que l'API peut utiliser (cas d'usage métier)
+- **Prototype** :
+```csharp
 public interface IUserService
 {
     Task<UserResponse> GetByIdAsync(int id);
-    Task<IEnumerable<UserResponse>> GetAllAsync();
     Task<UserResponse> CreateAsync(CreateUserRequest request);
-    Task<UserResponse> UpdateAsync(int id, UpdateUserRequest request);
     Task DeleteAsync(int id);
 }
+```
 
-// Interfaces/IRepositories/IUserRepository.cs
-namespace back_projet_Csharp.Application.Interfaces.IRepositories;
-
+**Interfaces/IRepositories**
+- **Utilité** : Définit les besoins d'accès aux données (contrats pour Infrastructure)
+- **CRUCIAL** : Ces interfaces restent dans Application pour éviter que Application dépende d'Infrastructure
+- **Prototype** :
+```csharp
 public interface IUserRepository
 {
-    Task<User> GetByIdAsync(int id);
-    Task<IEnumerable<User>> GetAllAsync();
+    Task<User> GetByIdAsync(int id);              // Retourne entité Domain
     Task<User> AddAsync(User user);
-    Task UpdateAsync(User user);
-    Task DeleteAsync(int id);
     Task<bool> ExistsByEmailAsync(string email);
 }
+```
 
-// Services/UserService.cs
-using back_projet_Csharp.Domain.Models;
-using back_projet_Csharp.Domain.Exceptions;
-using back_projet_Csharp.Application.DTOs.Requests;
-using back_projet_Csharp.Application.DTOs.Responses;
-using back_projet_Csharp.Application.Interfaces.IServices;
-using back_projet_Csharp.Application.Interfaces.IRepositories;
-
-namespace back_projet_Csharp.Application.Services;
-
+**Services**
+- **Utilité** : Implémentent la logique métier et orchestrent les repositories
+- **Responsabilités** : Validation, transformation DTO ↔ Entity, règles métier
+- **Prototype** :
+```csharp
 public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
 
-    public UserService(IUserRepository userRepository)
-    {
-        _userRepository = userRepository;
-    }
-
-    public async Task<UserResponse> GetByIdAsync(int id)
-    {
-        var user = await _userRepository.GetByIdAsync(id);
-        if (user == null)
-            throw new UserNotFoundException(id);
-
-        return MapToResponse(user);
-    }
-
-    public async Task<IEnumerable<UserResponse>> GetAllAsync()
-    {
-        var users = await _userRepository.GetAllAsync();
-        return users.Select(MapToResponse);
-    }
+    public UserService(IUserRepository userRepository) { }
 
     public async Task<UserResponse> CreateAsync(CreateUserRequest request)
     {
-        // Vérifier si l'email existe déjà
-        if (await _userRepository.ExistsByEmailAsync(request.Email))
-            throw new InvalidOperationException("Email already exists");
-
-        // Créer l'entité via la méthode factory du Domain
-        var user = User.Create(request.Email, HashPassword(request.Password));
-
-        // Persister
-        var createdUser = await _userRepository.AddAsync(user);
-
-        return MapToResponse(createdUser);
-    }
-
-    public async Task DeleteAsync(int id)
-    {
-        var user = await _userRepository.GetByIdAsync(id);
-        if (user == null)
-            throw new UserNotFoundException(id);
-
-        await _userRepository.DeleteAsync(id);
-    }
-
-    private static UserResponse MapToResponse(User user)
-    {
-        return new UserResponse
-        {
-            Id = user.Id,
-            Email = user.Email,
-            IsActive = user.IsActive,
-            CreatedAt = user.CreatedAt
-        };
-    }
-
-    private static string HashPassword(string password)
-    {
-        // TODO: Utiliser BCrypt ou similaire
-        return password; // Placeholder
+        // 1. Validation métier
+        // 2. Transformation Request → Entity
+        // 3. Appel repository
+        // 4. Transformation Entity → Response
     }
 }
 ```
 
-### Dépendances NuGet
+**Validators**
+- **Utilité** : Valident les données entrantes (avec FluentValidation par exemple)
+- **Prototype** :
+```csharp
+public class CreateUserValidator : AbstractValidator<CreateUserRequest>
+{
+    public CreateUserValidator()
+    {
+        RuleFor(x => x.Email).NotEmpty().EmailAddress();
+        RuleFor(x => x.Password).MinimumLength(8);
+    }
+}
+```
 
+### Dépendances
+
+**Références de projets** :
 ```bash
-# Aucune dépendance obligatoire de base
-# Optionnelles selon besoins :
-dotnet add package AutoMapper          # Mapping DTOs
+dotnet add reference ../Domain/Domain.csproj
+```
+
+**NuGet optionnels** :
+```bash
+dotnet add package AutoMapper          # Mapping DTOs ↔ Entities
 dotnet add package FluentValidation    # Validation
-```
-
-### Références de projets
-
-```bash
-dotnet add reference ../back_projet_Csharp.Domain/back_projet_Csharp.Domain.csproj
-```
-
-### Commande de création
-
-```bash
-dotnet new classlib -n back_projet_Csharp.Application
-dotnet add back_projet_Csharp.Application reference back_projet_Csharp.Domain
 ```
 
 ---
@@ -317,12 +261,12 @@ dotnet add back_projet_Csharp.Application reference back_projet_Csharp.Domain
 ## 3. Infrastructure (Class Library)
 
 ### Type de projet
-**Class Library** - `dotnet new classlib`
+**Class Library** - `dotnet new classlib -n back_projet_Csharp.Infrastructure`
 
 ### Responsabilité
-Implémentation technique : accès aux données, services externes, configurations techniques.
+**Implémentations techniques concrètes.** Accès aux données, services externes, détails techniques.
 
-### Contenu
+### Structure
 
 ```
 Infrastructure/
@@ -337,95 +281,58 @@ Infrastructure/
 │   ├── UserRepository.cs
 │   └── ProductRepository.cs
 │
-└── Services/                      # Services techniques (optionnel)
+└── Adapters/                      # Services techniques (optionnel)
     ├── EmailService.cs
     └── CacheService.cs
 ```
 
-### Exemple de code
+### À quoi servent les différents éléments ?
 
+**Data/AppDbContext**
+- **Utilité** : Point d'accès à la base de données via Entity Framework
+- **Prototype** :
 ```csharp
-// Data/AppDbContext.cs
-using Microsoft.EntityFrameworkCore;
-using back_projet_Csharp.Domain.Models;
-
-namespace back_projet_Csharp.Infrastructure.Data;
-
 public class AppDbContext : DbContext
 {
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
-    {
-    }
-
     public DbSet<User> Users { get; set; }
     public DbSet<Product> Products { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(modelBuilder);
-
-        // Appliquer toutes les configurations
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
     }
 }
+```
 
-// Data/Configurations/UserConfiguration.cs
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using back_projet_Csharp.Domain.Models;
-
-namespace back_projet_Csharp.Infrastructure.Data.Configurations;
-
+**Data/Configurations**
+- **Utilité** : Configuration des tables, contraintes, index, relations (EF Core)
+- **Prototype** :
+```csharp
 public class UserConfiguration : IEntityTypeConfiguration<User>
 {
     public void Configure(EntityTypeBuilder<User> builder)
     {
         builder.HasKey(u => u.Id);
-
-        builder.Property(u => u.Email)
-            .IsRequired()
-            .HasMaxLength(255);
-
-        builder.Property(u => u.PasswordHash)
-            .IsRequired()
-            .HasMaxLength(500);
-
-        builder.Property(u => u.IsActive)
-            .IsRequired();
-
-        builder.Property(u => u.CreatedAt)
-            .IsRequired();
-
-        builder.HasIndex(u => u.Email)
-            .IsUnique();
+        builder.Property(u => u.Email).IsRequired().HasMaxLength(255);
+        builder.HasIndex(u => u.Email).IsUnique();
     }
 }
+```
 
-// Repositories/UserRepository.cs
-using Microsoft.EntityFrameworkCore;
-using back_projet_Csharp.Domain.Models;
-using back_projet_Csharp.Application.Interfaces.IRepositories;
-using back_projet_Csharp.Infrastructure.Data;
-
-namespace back_projet_Csharp.Infrastructure.Repositories;
-
-public class UserRepository : IUserRepository
+**Repositories**
+- **Utilité** : Implémentent les interfaces IRepositories définies dans Application
+- **Responsabilités** : Requêtes SQL/LINQ, accès DbContext, opérations CRUD
+- **Prototype** :
+```csharp
+public class UserRepository : IUserRepository  // Implémente interface d'Application
 {
     private readonly AppDbContext _context;
 
-    public UserRepository(AppDbContext context)
-    {
-        _context = context;
-    }
+    public UserRepository(AppDbContext context) { }
 
     public async Task<User> GetByIdAsync(int id)
     {
         return await _context.Users.FindAsync(id);
-    }
-
-    public async Task<IEnumerable<User>> GetAllAsync()
-    {
-        return await _context.Users.ToListAsync();
     }
 
     public async Task<User> AddAsync(User user)
@@ -434,52 +341,40 @@ public class UserRepository : IUserRepository
         await _context.SaveChangesAsync();
         return user;
     }
+}
+```
 
-    public async Task UpdateAsync(User user)
+**Services techniques**
+- **Utilité** : Services d'infrastructure (email, cache, file storage, APIs externes)
+- **Prototype** :
+```csharp
+public class EmailService : IEmailService
+{
+    public async Task SendAsync(string to, string subject, string body)
     {
-        _context.Users.Update(user);
-        await _context.SaveChangesAsync();
-    }
-
-    public async Task DeleteAsync(int id)
-    {
-        var user = await GetByIdAsync(id);
-        if (user != null)
-        {
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
-        }
-    }
-
-    public async Task<bool> ExistsByEmailAsync(string email)
-    {
-        return await _context.Users.AnyAsync(u => u.Email == email);
+        // Implémentation SMTP ou service tiers (SendGrid, etc.)
     }
 }
 ```
 
-### Dépendances NuGet
+**Migrations**
+- **Utilité** : Historique des changements de schéma de base de données (auto-générées par EF)
+- **Commande** : `dotnet ef migrations add MigrationName`
 
+### Dépendances
+
+**Références de projets** :
+```bash
+dotnet add reference ../Domain/Domain.csproj
+dotnet add reference ../Application/Application.csproj
+```
+
+**NuGet requis** :
 ```bash
 dotnet add package Microsoft.EntityFrameworkCore
-dotnet add package Microsoft.EntityFrameworkCore.SqlServer      # ou .Npgsql pour PostgreSQL
+dotnet add package Microsoft.EntityFrameworkCore.SqlServer  # ou .Npgsql pour PostgreSQL
 dotnet add package Microsoft.EntityFrameworkCore.Tools
 dotnet add package Microsoft.EntityFrameworkCore.Design
-```
-
-### Références de projets
-
-```bash
-dotnet add reference ../back_projet_Csharp.Domain/back_projet_Csharp.Domain.csproj
-dotnet add reference ../back_projet_Csharp.Application/back_projet_Csharp.Application.csproj
-```
-
-### Commande de création
-
-```bash
-dotnet new classlib -n back_projet_Csharp.Infrastructure
-dotnet add back_projet_Csharp.Infrastructure reference back_projet_Csharp.Domain
-dotnet add back_projet_Csharp.Infrastructure reference back_projet_Csharp.Application
 ```
 
 ---
@@ -487,12 +382,12 @@ dotnet add back_projet_Csharp.Infrastructure reference back_projet_Csharp.Applic
 ## 4. API (ASP.NET Core Web API)
 
 ### Type de projet
-**ASP.NET Core Web API** - `dotnet new webapi`
+**ASP.NET Core Web API** - `dotnet new webapi -n back_projet_Csharp.API`
 
 ### Responsabilité
-Point d'entrée de l'application. Gère les requêtes HTTP, routing, middleware, configuration DI.
+**Point d'entrée HTTP de l'application.** Gère les requêtes, routing, middleware, injection de dépendances.
 
-### Contenu
+### Structure
 
 ```
 API/
@@ -505,36 +400,24 @@ API/
 │
 ├── Program.cs                     # Point d'entrée + configuration DI
 ├── appsettings.json
-└── appsettings.Development.json
+├── appsettings.Development.json
+└── Dockerfile                     # Configuration Docker (optionnel)
 ```
 
-### Exemple de code
+### À quoi servent les différents éléments ?
 
+**Controllers**
+- **Utilité** : Exposent les endpoints HTTP et délèguent au Service
+- **Responsabilités** : Recevoir requête HTTP, appeler service, retourner réponse HTTP
+- **Prototype** :
 ```csharp
-// Controllers/UserController.cs
-using Microsoft.AspNetCore.Mvc;
-using back_projet_Csharp.Application.DTOs.Requests;
-using back_projet_Csharp.Application.Interfaces.IServices;
-
-namespace back_projet_Csharp.API.Controllers;
-
 [ApiController]
 [Route("api/[controller]")]
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
 
-    public UserController(IUserService userService)
-    {
-        _userService = userService;
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> GetAll()
-    {
-        var users = await _userService.GetAllAsync();
-        return Ok(users);
-    }
+    public UserController(IUserService userService) { }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
@@ -549,133 +432,108 @@ public class UserController : ControllerBase
         var user = await _userService.CreateAsync(request);
         return CreatedAtAction(nameof(GetById), new { id = user.Id }, user);
     }
-
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        await _userService.DeleteAsync(id);
-        return NoContent();
-    }
 }
+```
 
-// Program.cs
-using Microsoft.EntityFrameworkCore;
-using back_projet_Csharp.Infrastructure.Data;
-using back_projet_Csharp.Infrastructure.Repositories;
-using back_projet_Csharp.Application.Interfaces.IRepositories;
-using back_projet_Csharp.Application.Interfaces.IServices;
-using back_projet_Csharp.Application.Services;
-
+**Program.cs**
+- **Utilité** : Configuration de l'application et injection de dépendances
+- **Responsabilités** : Enregistrer services, configurer middleware, lancer l'app
+- **Prototype** :
+```csharp
 var builder = WebApplication.CreateBuilder(args);
 
 // Configuration DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Dependency Injection - Repositories
+// Dependency Injection
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IProductRepository, ProductRepository>();
-
-// Dependency Injection - Services
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IProductService, ProductService>();
 
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
-
-// Middleware
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
-
 app.Run();
 ```
 
-```json
-// appsettings.json
+**Middleware**
+- **Utilité** : Traitement global des requêtes (gestion d'erreurs, logging, authentification)
+- **Prototype** :
+```csharp
+public class ExceptionHandlerMiddleware
 {
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost;Database=MyAppDb;Trusted_Connection=true;TrustServerCertificate=true;"
-  },
-  "Logging": {
-    "LogLevel": {
-      "Default": "Information",
-      "Microsoft.AspNetCore": "Warning"
+    public async Task InvokeAsync(HttpContext context, RequestDelegate next)
+    {
+        try { await next(context); }
+        catch (Exception ex) { /* Log et retourner erreur formatée */ }
     }
-  },
-  "AllowedHosts": "*"
 }
 ```
 
-### Dépendances NuGet
-
-```bash
-dotnet add package Microsoft.EntityFrameworkCore.Design
-dotnet add package Swashbuckle.AspNetCore              # Swagger (déjà inclus)
+**appsettings.json**
+- **Utilité** : Configuration de l'application (connexion BDD, paramètres, secrets)
+- **Exemple** :
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Database=MyDb;..."
+  }
+}
 ```
 
-### Références de projets
+**Dockerfile**
+- **Utilité** : Conteneurisation de l'application
+- **Important** : Un seul Dockerfile dans API suffit (il inclut tous les projets lors du build)
 
+### Dépendances
+
+**Références de projets** :
 ```bash
-dotnet add reference ../back_projet_Csharp.Application/back_projet_Csharp.Application.csproj
-dotnet add reference ../back_projet_Csharp.Infrastructure/back_projet_Csharp.Infrastructure.csproj
+dotnet add reference ../Application/Application.csproj
+dotnet add reference ../Infrastructure/Infrastructure.csproj
 ```
 
-### Commande de création
-
+**NuGet** :
 ```bash
-dotnet new webapi -n back_projet_Csharp.API
-dotnet add back_projet_Csharp.API reference back_projet_Csharp.Application
-dotnet add back_projet_Csharp.API reference back_projet_Csharp.Infrastructure
+dotnet add package Microsoft.EntityFrameworkCore.Design  # Pour les migrations
 ```
 
 ---
 
 ## Script complet de création
 
-Exécutez ce script dans le dossier de votre solution :
-
 ```bash
-# Créer les projets
-dotnet new classlib -n back_projet_Csharp.Domain
-dotnet new classlib -n back_projet_Csharp.Application
-dotnet new classlib -n back_projet_Csharp.Infrastructure
-dotnet new webapi -n back_projet_Csharp.API
+# 1. Créer les projets
+dotnet new classlib -n Domain
+dotnet new classlib -n Application
+dotnet new classlib -n Infrastructure
+dotnet new webapi -n API
 
-# Ajouter les références entre projets
-dotnet add back_projet_Csharp.Application/back_projet_Csharp.Application.csproj reference back_projet_Csharp.Domain/back_projet_Csharp.Domain.csproj
-
-dotnet add back_projet_Csharp.Infrastructure/back_projet_Csharp.Infrastructure.csproj reference back_projet_Csharp.Domain/back_projet_Csharp.Domain.csproj
-dotnet add back_projet_Csharp.Infrastructure/back_projet_Csharp.Infrastructure.csproj reference back_projet_Csharp.Application/back_projet_Csharp.Application.csproj
-
-dotnet add back_projet_Csharp.API/back_projet_Csharp.API.csproj reference back_projet_Csharp.Application/back_projet_Csharp.Application.csproj
-dotnet add back_projet_Csharp.API/back_projet_Csharp.API.csproj reference back_projet_Csharp.Infrastructure/back_projet_Csharp.Infrastructure.csproj
-
-# Créer/mettre à jour le fichier solution
+# 2. Créer la solution et ajouter les projets
 dotnet new sln -n back_projet_Csharp
-dotnet sln add back_projet_Csharp.Domain/back_projet_Csharp.Domain.csproj
-dotnet sln add back_projet_Csharp.Application/back_projet_Csharp.Application.csproj
-dotnet sln add back_projet_Csharp.Infrastructure/back_projet_Csharp.Infrastructure.csproj
-dotnet sln add back_projet_Csharp.API/back_projet_Csharp.API.csproj
+dotnet sln add Domain/Domain.csproj
+dotnet sln add Application/Application.csproj
+dotnet sln add Infrastructure/Infrastructure.csproj
+dotnet sln add API/API.csproj
 
-# Installer les packages NuGet
-dotnet add back_projet_Csharp.Infrastructure/back_projet_Csharp.Infrastructure.csproj package Microsoft.EntityFrameworkCore
-dotnet add back_projet_Csharp.Infrastructure/back_projet_Csharp.Infrastructure.csproj package Microsoft.EntityFrameworkCore.SqlServer
-dotnet add back_projet_Csharp.Infrastructure/back_projet_Csharp.Infrastructure.csproj package Microsoft.EntityFrameworkCore.Tools
-dotnet add back_projet_Csharp.Infrastructure/back_projet_Csharp.Infrastructure.csproj package Microsoft.EntityFrameworkCore.Design
+# 3. Ajouter les références entre projets
+dotnet add Application reference Domain
+dotnet add Infrastructure reference Domain
+dotnet add Infrastructure reference Application
+dotnet add API reference Application
+dotnet add API reference Infrastructure
 
-dotnet add back_projet_Csharp.API/back_projet_Csharp.API.csproj package Microsoft.EntityFrameworkCore.Design
+# 4. Installer les packages NuGet
+dotnet add Infrastructure package Microsoft.EntityFrameworkCore
+dotnet add Infrastructure package Microsoft.EntityFrameworkCore.SqlServer
+dotnet add Infrastructure package Microsoft.EntityFrameworkCore.Tools
+dotnet add Infrastructure package Microsoft.EntityFrameworkCore.Design
+dotnet add API package Microsoft.EntityFrameworkCore.Design
 
-# Build la solution
+# 5. Build
 dotnet build
 ```
 
@@ -683,53 +541,50 @@ dotnet build
 
 ## Workflow de développement
 
-### 1. Ajouter une nouvelle entité
+### Ajouter une nouvelle fonctionnalité (exemple: Product)
 
-```
-Domain/Models/Product.cs → Créer l'entité
-Infrastructure/Data/Configurations/ProductConfiguration.cs → Configuration EF
-Infrastructure/Migrations → dotnet ef migrations add AddProduct
-```
+**Ordre recommandé** :
+1. **Domain** : Créer `Models/Product.cs`
+2. **Application** : Créer DTOs (`ProductRequest`, `ProductResponse`)
+3. **Application** : Créer interfaces (`IProductRepository`, `IProductService`)
+4. **Application** : Implémenter `Services/ProductService.cs`
+5. **Infrastructure** : Créer `Configurations/ProductConfiguration.cs`
+6. **Infrastructure** : Implémenter `Repositories/ProductRepository.cs`
+7. **Infrastructure** : Générer migration : `dotnet ef migrations add AddProduct`
+8. **API** : Créer `Controllers/ProductController.cs`
+9. **API** : Enregistrer DI dans `Program.cs`
 
-### 2. Ajouter un nouveau cas d'usage
-
-```
-Application/DTOs → Créer Request/Response
-Application/Interfaces/IRepositories → Définir IProductRepository
-Application/Interfaces/IServices → Définir IProductService
-Infrastructure/Repositories → Implémenter ProductRepository
-Application/Services → Implémenter ProductService
-API/Controllers → Créer ProductController
-API/Program.cs → Enregistrer les DI
-```
-
-### 3. Migrations Entity Framework
+### Commandes Entity Framework
 
 ```bash
-# Depuis le dossier de la solution
-dotnet ef migrations add InitialCreate --project back_projet_Csharp.Infrastructure --startup-project back_projet_Csharp.API
+# Ajouter une migration
+dotnet ef migrations add MigrationName --project Infrastructure --startup-project API
 
-dotnet ef database update --project back_projet_Csharp.Infrastructure --startup-project back_projet_Csharp.API
+# Appliquer les migrations
+dotnet ef database update --project Infrastructure --startup-project API
+
+# Supprimer la dernière migration
+dotnet ef migrations remove --project Infrastructure --startup-project API
 ```
 
 ---
 
-## Avantages de cette architecture
+## Résumé rapide
 
-1. **Séparation des responsabilités** : Chaque projet a un rôle précis
-2. **Testabilité** : Domain et Application testables sans BDD
-3. **Maintenabilité** : Code organisé, facile à naviguer
-4. **Évolutivité** : Facile d'ajouter de nouvelles fonctionnalités
-5. **Flexibilité** : Changement de techno BDD sans toucher au Domain
-6. **Réutilisabilité** : Domain/Application peuvent être partagés
+| Projet          | Rôle                              | Dépend de              |
+|-----------------|-----------------------------------|------------------------|
+| **Domain**      | Logique métier pure               | Rien                   |
+| **Application** | Orchestration + Contrats          | Domain                 |
+| **Infrastructure** | Implémentations techniques     | Domain + Application   |
+| **API**         | Point d'entrée HTTP               | Application + Infrastructure |
 
----
-
-## Résumé des types de projets
-
-| Projet          | Type                | Commande                    | Dépendances                      |
-|-----------------|---------------------|-----------------------------|----------------------------------|
-| Domain          | Class Library       | `dotnet new classlib`       | Aucune                           |
-| Application     | Class Library       | `dotnet new classlib`       | Domain                           |
-| Infrastructure  | Class Library       | `dotnet new classlib`       | Domain, Application, EF Core     |
-| API             | ASP.NET Core WebAPI | `dotnet new webapi`         | Application, Infrastructure      |
+**Flux de données** :
+```
+HTTP Request → Controller (API)
+              ↓
+           Service (Application)
+              ↓
+          Repository (Infrastructure)
+              ↓
+           DbContext → Database
+```

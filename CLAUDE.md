@@ -5,11 +5,18 @@ Rules:
 - No over-engineering, no premature abstractions. Keep files and classes small.
 - Use Extract Method refactorings to split overly long methods into smaller, clearly named methods.
 - Code and identifiers must be in English. Avoid comments unless strictly necessary. Prefer clear naming over comments.
-- Layered architecture: separate concerns into distinct layers (API/Controllers, Services, Repositories, Domain Models).
+
+- Four-layer architecture (Clean Architecture):
+    * API: Controllers only. Receive HTTP requests, create Commands/Queries, send via MediatR, return results. No business logic, no validation, no try/catch (use global middleware).
+    * Application: Use cases orchestration. Contains Commands, Queries, Handlers, Validators (FluentValidation), DTOs (in DTOs/Input and DTOs/Output subfolders), and interfaces for external services (IEmailService, IAuditLogger, etc.).
+    * Domain: Pure business logic. Entities with private setters and factory methods, Value Objects, Domain Services (zero external dependencies), Domain Events, and repository interfaces (IUserRepository, etc.). Must be testable with "new" only.
+    * Infrastructure: Implementations of interfaces defined in Application and Domain. Repositories (EF Core), external services (Email, Logger), DbContext, configurations.
+    * Dependencies flow: API → Application → Domain ← Infrastructure
+
 - Prefer composition over inheritance. Small, focused classes with single responsibilities.
 - When a method requires many related parameters, introduce a simple parameter object instead of a long parameter list.
 - Remove dead code: delete unused code, obsolete branches, and commented-out implementations.
-- Encapsulate fields: expose state via properties or methods rather than public mutable fields.
+- Encapsulate fields: expose state via properties rather than public mutable fields. Entities must have private setters.
 - Extract interfaces to isolate behavior and reduce coupling between components.
 - Use the Strategy pattern to replace complex conditional logic with interchangeable behaviors when it improves clarity and flexibility.
 - Functionality-first: implement end-to-end behavior and data flow (Request → Processing → Response) before strict validation. Basic guards only; hardening can come later on request.
@@ -23,7 +30,8 @@ Rules:
 - Handle exceptions appropriately: don't swallow exceptions, use specific exception types, consider custom exceptions for business logic.
 - Use nullable reference types correctly. Enable nullable context when appropriate.
 - Jamais de thread, toujours TASK, et pas de triche avec Result ou wait, toujours await
-  Unit Testing:
+
+Unit Testing:
 - All unit tests must follow the Arrange-Act-Assert (AAA) pattern:
     * Arrange: Set up test data, configure dependencies, and prepare the system under test
     * Act: Execute the targeted code or method being tested
@@ -41,6 +49,7 @@ NuGet Packages & Modules:
     * AutoMapper for object mapping
     * Serilog or NLog for logging
     * MediatR for CQRS pattern
+    * FluentValidation for validation in Application layer
     * xUnit for testing
 - Always mention if a package requires additional configuration or setup.
 
@@ -58,3 +67,4 @@ Communication:
 - Don't hesitate to ask for confirmation if the request seems problematic or unclear.
 - Push back constructively when something doesn't align with best practices.
 - When suggesting architecture, consider scalability, maintainability, and testability.
+- If code belongs in the wrong layer, flag it immediately and explain where it should go.

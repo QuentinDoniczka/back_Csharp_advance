@@ -5,7 +5,10 @@
       "Bash(dir /b \"C:\\Users\\donic\\RiderProjects\\back_projet_Csharp\")",
       "Bash(dotnet add:*)",
       "Bash(dir:*)",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(echo:*)",
+      "Bash(git add:*)",
+      "Bash(findstr:*)"
     ],
     "deny": [],
     "ask": []

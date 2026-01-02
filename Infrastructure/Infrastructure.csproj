@@ -7,11 +7,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="DTOs\Requests\" />
-      <Folder Include="DTOs\Responses\" />
-      <Folder Include="Interfaces\IRepositories\" />
-      <Folder Include="Interfaces\IServices\" />
-      <Folder Include="Services\" />
+      <Folder Include="Adapters\" />
+      <Folder Include="Data\Configurations\" />
+      <Folder Include="Migrations\" />
+      <Folder Include="Repositories\" />
     </ItemGroup>
 
 </Project>

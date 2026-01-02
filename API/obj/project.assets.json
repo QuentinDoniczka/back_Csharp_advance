@@ -504,11 +504,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\donic\\RiderProjects\\back_projet_Csharp\\back_projet_Csharp\\back_projet_Csharp.csproj",
-      "projectName": "back_projet_Csharp",
-      "projectPath": "C:\\Users\\donic\\RiderProjects\\back_projet_Csharp\\back_projet_Csharp\\back_projet_Csharp.csproj",
+      "projectUniqueName": "C:\\Users\\donic\\RiderProjects\\back_projet_Csharp\\API\\API.csproj",
+      "projectName": "API",
+      "projectPath": "C:\\Users\\donic\\RiderProjects\\back_projet_Csharp\\API\\API.csproj",
       "packagesPath": "C:\\Users\\donic\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\donic\\RiderProjects\\back_projet_Csharp\\back_projet_Csharp\\obj\\",
+      "outputPath": "C:\\Users\\donic\\RiderProjects\\back_projet_Csharp\\API\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
