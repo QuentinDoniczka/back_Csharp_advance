@@ -498,31 +498,24 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\donic\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "C:\\Users\\donic\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\donic\\RiderProjects\\back_projet_Csharp\\API\\API.csproj",
+      "projectUniqueName": "C:\\Users\\donic\\RiderProjects\\back_Csharp_advance\\API\\API.csproj",
       "projectName": "API",
-      "projectPath": "C:\\Users\\donic\\RiderProjects\\back_projet_Csharp\\API\\API.csproj",
+      "projectPath": "C:\\Users\\donic\\RiderProjects\\back_Csharp_advance\\API\\API.csproj",
       "packagesPath": "C:\\Users\\donic\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\donic\\RiderProjects\\back_projet_Csharp\\API\\obj\\",
+      "outputPath": "C:\\Users\\donic\\RiderProjects\\back_Csharp_advance\\API\\obj\\",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\donic\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "C:\\Users\\donic\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net10.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
