@@ -1,4 +1,4 @@
-namespace back_projet_Csharp;
+namespace BackBase.API;
 
 public class WeatherForecast
 {

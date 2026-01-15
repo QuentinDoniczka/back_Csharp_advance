@@ -8,7 +8,10 @@
       "Bash(done)",
       "Bash(echo:*)",
       "Bash(git add:*)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nRestructuration vers Clean Architecture à 4 couches\n\n- Ajout des projets Domain, Application, et Infrastructure\n- Suppression des anciens projets \\(Metier, Service, back_projet_Csharp\\)\n- Mise à jour de la solution pour refléter la nouvelle structure\n- Ajout d''un .gitignore pour exclure les fichiers générés \\(obj/, bin/, etc.\\)\n- Nettoyage des fichiers de build trackés par erreur\n- Mise à jour de la documentation \\(ARCHITECTURE.md, CLAUDE.md\\)\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(dotnet build:*)",
+      "Bash(dotnet clean:*)"
     ],
     "deny": [],
     "ask": []
