@@ -25,7 +25,10 @@
       "Bash(rm:*)",
       "Bash(rm -f:*)",
       "Bash(rm -rf:*)",
-      "Bash(rmdir:*)"
+      "Bash(rmdir:*)",
+      "Bash(docker:*)",
+      "Bash(docker compose:*)",
+      "Bash(curl:*)"
     ],
     "ask": [
       "Bash(git push:*)"

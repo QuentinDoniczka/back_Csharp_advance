@@ -1,7 +1,16 @@
-﻿services:
-  back_projet_csharp:
-    image: back_projet_csharp
+services:
+  backbase-api:
     build:
       context: .
-      dockerfile: back_projet_Csharp/Dockerfile
-
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
