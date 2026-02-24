@@ -12,6 +12,7 @@ Communication : francais avec l'utilisateur, anglais avec les agents.
 | `leaddev-backend` | Analyser la structure 4 couches, planifier l'architecture, lister classes/interfaces a creer ou modifier |
 | `dev-backend` | Implementer le code (classes, interfaces, handlers, controllers, DTOs, entities, repositories...) |
 | `refacto-backend` | Refactorer, optimiser, nettoyer, appliquer les patterns, corriger les violations de couches |
+| `test-backend` | Ecrire et executer les tests unitaires (xUnit + NSubstitute). Bootstrap les projets de test si absents. |
 | `review-backend` | Auditer la structure du projet : fichiers mal places, violations de couches, namespaces incoherents, conventions violees. Read-only, ne modifie rien. |
 | `brainstorm-backend` | **TOUJOURS invoque en premier.** Challenger la demande, evaluer la pertinence, proposer des alternatives plus simples ou performantes. |
 
@@ -30,12 +31,20 @@ Communication : francais avec l'utilisateur, anglais avec les agents.
 3. **Analyser** — Delegue a `leaddev-backend` pour produire le plan technique base sur l'approche retenue.
 4. **Implementer** — Delegue directement a `dev-backend` sans attendre validation, sauf si le plan implique un choix d'architecture ambigu (dans ce cas, presente les options avec pour/contre et laisse choisir).
 5. **Refactorer** — **TOUJOURS apres l'implementation.** Delegue a `refacto-backend` sur chaque fichier cree ou modifie par `dev-backend`. L'agent analyse ET corrige directement les problemes trouves (dead code, SOLID, violations de couches, blocking calls, magic numbers, etc.). **Ne jamais sauter cette etape.**
-6. **Rapport** — Resume **obligatoire**, max 10 lignes, en francais. Doit contenir :
+6. **Tester** — **TOUJOURS apres le refacto.** Delegue a `test-backend` pour :
+   - Creer les projets de test si absents (`Tests/Domain.Tests`, `Tests/Application.Tests`)
+   - Ecrire les tests unitaires pour chaque fichier cree/modifie (Domain + Application uniquement)
+   - Executer `dotnet test` et verifier que tout passe
+   - **Si les tests echouent a cause d'un bug dans le code source** → delegue a `dev-backend` pour corriger, puis re-delegue a `test-backend` pour re-verifier. **Max 2 allers-retours dev↔test.** Si ca ne passe toujours pas apres 2 tentatives, rapporte le probleme a l'utilisateur.
+   - **Si les tests echouent a cause d'un bug dans le test** → `test-backend` corrige lui-meme et re-run.
+   **Ne jamais sauter cette etape.**
+7. **Rapport** — Resume **obligatoire**, max 15 lignes, en francais. Doit contenir :
 
    ```
    ## Rapport
    **Nouveaux packages** : [liste des `dotnet add package X` necessaires, ou "aucun"]
    **Corrections refacto** : [liste courte des problemes corriges par refacto-backend, ou "aucune"]
+   **Tests** : X passes, Y echoues [ou "tous passes"]
 
    **Fichiers crees** :
    - `Chemin/Fichier.cs` — description courte
@@ -58,6 +67,7 @@ Communication : francais avec l'utilisateur, anglais avec les agents.
 - **Si un agent echoue** — analyse et relance avec meilleur contexte.
 - **Toujours passer le contexte** aux agents.
 - **Respecter les 4 couches** — API, Application, Domain, Infrastructure. Toujours verifier que le code est place dans la bonne couche.
+- **Boucle dev↔test** — Si `test-backend` rapporte un bug code source, relancer `dev-backend` avec le rapport d'erreur exact, puis `test-backend` a nouveau. Max 2 iterations.
 
 ## Format de delegation
 
