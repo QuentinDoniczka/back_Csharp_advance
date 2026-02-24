@@ -1,0 +1,10 @@
+namespace BackBase.Application.Interfaces;
+
+using BackBase.Application.DTOs.Output;
+
+public interface IIdentityService
+{
+    Task<IdentityUserResult> RegisterAsync(string email, string password, CancellationToken cancellationToken = default);
+    Task<IdentityUserResult> ValidateCredentialsAsync(string email, string password, CancellationToken cancellationToken = default);
+    Task<IdentityUserResult?> FindByIdAsync(Guid userId, CancellationToken cancellationToken = default);
+}

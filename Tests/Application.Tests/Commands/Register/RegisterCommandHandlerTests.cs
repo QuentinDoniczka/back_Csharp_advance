@@ -1,34 +1,34 @@
 namespace BackBase.Application.Tests.Commands.Register;
 
 using BackBase.Application.Commands.Register;
+using BackBase.Application.DTOs.Output;
 using BackBase.Application.Interfaces;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
 public sealed class RegisterCommandHandlerTests
 {
-    private readonly IAuthenticationService _authenticationService;
+    private readonly IIdentityService _identityService;
     private readonly RegisterCommandHandler _handler;
 
     public RegisterCommandHandlerTests()
     {
-        _authenticationService = Substitute.For<IAuthenticationService>();
-        _handler = new RegisterCommandHandler(_authenticationService);
+        _identityService = Substitute.For<IIdentityService>();
+        _handler = new RegisterCommandHandler(_identityService);
     }
 
     [Fact]
-    public async Task Handle_ValidCommand_ReturnsRegisterResult()
+    public async Task Handle_ValidCommand_ReturnsRegisterResultWithCorrectUserId()
     {
         // Arrange
         var email = "player@example.com";
         var password = "StrongPass1";
         var command = new RegisterCommand(email, password);
         var expectedUserId = Guid.NewGuid();
-        var expectedResult = new RegisterResult(expectedUserId, email);
 
-        _authenticationService
+        _identityService
             .RegisterAsync(email, password, Arg.Any<CancellationToken>())
-            .Returns(expectedResult);
+            .Returns(new IdentityUserResult(expectedUserId, email));
 
         // Act
         var result = await _handler.Handle(command, CancellationToken.None);
@@ -36,26 +36,45 @@ public sealed class RegisterCommandHandlerTests
         // Assert
         Assert.NotNull(result);
         Assert.Equal(expectedUserId, result.UserId);
+    }
+
+    [Fact]
+    public async Task Handle_ValidCommand_ReturnsRegisterResultWithCorrectEmail()
+    {
+        // Arrange
+        var email = "hero@example.com";
+        var password = "StrongPass1";
+        var command = new RegisterCommand(email, password);
+        var userId = Guid.NewGuid();
+
+        _identityService
+            .RegisterAsync(email, password, Arg.Any<CancellationToken>())
+            .Returns(new IdentityUserResult(userId, email));
+
+        // Act
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        // Assert
         Assert.Equal(email, result.Email);
     }
 
     [Fact]
-    public async Task Handle_ValidCommand_DelegatesToAuthenticationService()
+    public async Task Handle_ValidCommand_CallsRegisterAsyncWithCorrectArguments()
     {
         // Arrange
         var email = "delegate@example.com";
         var password = "Password123";
         var command = new RegisterCommand(email, password);
 
-        _authenticationService
+        _identityService
             .RegisterAsync(email, password, Arg.Any<CancellationToken>())
-            .Returns(new RegisterResult(Guid.NewGuid(), email));
+            .Returns(new IdentityUserResult(Guid.NewGuid(), email));
 
         // Act
         await _handler.Handle(command, CancellationToken.None);
 
         // Assert
-        await _authenticationService
+        await _identityService
             .Received(1)
             .RegisterAsync(email, password, Arg.Any<CancellationToken>());
     }
@@ -68,7 +87,7 @@ public sealed class RegisterCommandHandlerTests
         var password = "Password123";
         var command = new RegisterCommand(email, password);
 
-        _authenticationService
+        _identityService
             .RegisterAsync(email, password, Arg.Any<CancellationToken>())
             .ThrowsAsync(new InvalidOperationException("User already exists"));
 
@@ -88,15 +107,15 @@ public sealed class RegisterCommandHandlerTests
         using var cts = new CancellationTokenSource();
         var token = cts.Token;
 
-        _authenticationService
+        _identityService
             .RegisterAsync(email, password, token)
-            .Returns(new RegisterResult(Guid.NewGuid(), email));
+            .Returns(new IdentityUserResult(Guid.NewGuid(), email));
 
         // Act
         await _handler.Handle(command, token);
 
         // Assert
-        await _authenticationService
+        await _identityService
             .Received(1)
             .RegisterAsync(email, password, token);
     }

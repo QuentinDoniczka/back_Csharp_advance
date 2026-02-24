@@ -1,6 +1,7 @@
 namespace BackBase.Infrastructure.Data.Configurations;
 
-using BackBase.Domain.Models;
+using BackBase.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -27,11 +28,16 @@ public sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<Refresh
         builder.Property(x => x.ReplacedByTokenHash)
             .HasMaxLength(128);
 
-        builder.HasIndex(x => x.TokenHash);
+        builder.HasIndex(x => new { x.TokenHash, x.UserId });
         builder.HasIndex(x => x.UserId);
 
         builder.Ignore(x => x.IsExpired);
         builder.Ignore(x => x.IsRevoked);
         builder.Ignore(x => x.IsActive);
+
+        builder.HasOne<IdentityUser<Guid>>()
+            .WithMany()
+            .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

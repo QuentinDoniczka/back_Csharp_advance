@@ -84,39 +84,57 @@ back_Csharp_advance/
 │   │   ├── Login/
 │   │   │   ├── LoginCommand.cs
 │   │   │   ├── LoginCommandHandler.cs
-│   │   │   ├── LoginCommandValidator.cs
-│   │   │   └── LoginResult.cs
+│   │   │   └── LoginCommandValidator.cs
 │   │   ├── RefreshToken/
 │   │   │   ├── RefreshTokenCommand.cs
 │   │   │   ├── RefreshTokenCommandHandler.cs
-│   │   │   ├── RefreshTokenCommandValidator.cs
-│   │   │   └── RefreshTokenResult.cs
+│   │   │   └── RefreshTokenCommandValidator.cs
 │   │   └── Register/
 │   │       ├── RegisterCommand.cs
 │   │       ├── RegisterCommandHandler.cs
 │   │       ├── RegisterCommandValidator.cs
 │   │       └── RegisterResult.cs
+│   ├── DTOs/
+│   │   └── Output/
+│   │       ├── AuthTokenResult.cs
+│   │       └── IdentityUserResult.cs
 │   ├── Exceptions/
 │   │   ├── AuthenticationException.cs
 │   │   └── ValidationException.cs
 │   └── Interfaces/
-│       └── IAuthenticationService.cs
+│       ├── IIdentityService.cs
+│       └── IJwtTokenService.cs
 ├── Domain/
-│   └── Models/
-│       └── RefreshToken.cs
+│   ├── Entities/
+│   │   └── RefreshToken.cs
+│   └── Interfaces/
+│       └── IRefreshTokenRepository.cs
 ├── Infrastructure/
 │   ├── Authentication/
-│   │   ├── AuthenticationService.cs
+│   │   ├── IdentityService.cs
 │   │   ├── JwtSettings.cs
 │   │   └── JwtTokenService.cs
 │   ├── Data/
 │   │   ├── Configurations/
 │   │   │   └── RefreshTokenConfiguration.cs
 │   │   └── AppDbContext.cs
+│   ├── Migrations/
+│   │   └── ...
+│   ├── Repositories/
+│   │   └── RefreshTokenRepository.cs
 │   └── DependencyInjection.cs
 ├── Tests/
-│   ├── Domain.Tests/
 │   └── Application.Tests/
+│       └── Commands/
+│           ├── Login/
+│           │   ├── LoginCommandHandlerTests.cs
+│           │   └── LoginCommandValidatorTests.cs
+│           ├── RefreshToken/
+│           │   ├── RefreshTokenCommandHandlerTests.cs
+│           │   └── RefreshTokenCommandValidatorTests.cs
+│           └── Register/
+│               ├── RegisterCommandHandlerTests.cs
+│               └── RegisterCommandValidatorTests.cs
 ├── Dockerfile
 └── compose.yaml
 ```

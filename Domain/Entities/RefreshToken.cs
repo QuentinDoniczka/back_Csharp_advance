@@ -1,4 +1,4 @@
-namespace BackBase.Domain.Models;
+namespace BackBase.Domain.Entities;
 
 public sealed class RefreshToken
 {
@@ -15,7 +15,7 @@ public sealed class RefreshToken
 
     private RefreshToken() { }
 
-    public static RefreshToken Create(string tokenHash, Guid userId, DateTime expiresAt)
+    public static RefreshToken Create(string tokenHash, Guid userId, DateTime expiresAt, DateTime? createdAt = null)
     {
         return new RefreshToken
         {
@@ -23,13 +23,13 @@ public sealed class RefreshToken
             TokenHash = tokenHash,
             UserId = userId,
             ExpiresAt = expiresAt,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = createdAt ?? DateTime.UtcNow
         };
     }
 
-    public void Revoke(string? replacedByTokenHash = null)
+    public void Revoke(string? replacedByTokenHash = null, DateTime? revokedAt = null)
     {
-        RevokedAt = DateTime.UtcNow;
+        RevokedAt = revokedAt ?? DateTime.UtcNow;
         ReplacedByTokenHash = replacedByTokenHash;
     }
 }

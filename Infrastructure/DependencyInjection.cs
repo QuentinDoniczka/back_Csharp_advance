@@ -2,8 +2,10 @@ namespace BackBase.Infrastructure;
 
 using System.Text;
 using BackBase.Application.Interfaces;
+using BackBase.Domain.Interfaces;
 using BackBase.Infrastructure.Authentication;
 using BackBase.Infrastructure.Data;
+using BackBase.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -49,8 +51,9 @@ public static class DependencyInjection
                 };
             });
 
-        services.AddScoped<JwtTokenService>();
-        services.AddScoped<IAuthenticationService, AuthenticationService>();
+        services.AddScoped<IJwtTokenService, JwtTokenService>();
+        services.AddScoped<IIdentityService, IdentityService>();
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
         return services;
     }

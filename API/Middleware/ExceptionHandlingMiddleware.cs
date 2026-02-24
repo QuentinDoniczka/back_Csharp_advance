@@ -1,5 +1,3 @@
-using System.Net;
-using System.Text.Json;
 using BackBase.Application.Exceptions;
 
 namespace BackBase.API.Middleware;
@@ -21,51 +19,54 @@ public sealed class ExceptionHandlingMiddleware
         {
             await _next(context);
         }
-        catch (ValidationException ex)
+        catch (Exception ex) when (!context.Response.HasStarted)
         {
-            await HandleValidationExceptionAsync(context, ex);
-        }
-        catch (AuthenticationException ex)
-        {
-            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            context.Response.ContentType = "application/json";
-            var response = new { title = "Authentication Failed", status = 401, detail = ex.Message };
-            await context.Response.WriteAsJsonAsync(response);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Unhandled exception occurred");
-            await HandleExceptionAsync(context);
+            switch (ex)
+            {
+                case ValidationException validationEx:
+                    await HandleValidationExceptionAsync(context, validationEx);
+                    break;
+                case AuthenticationException authEx:
+                    await HandleAuthenticationExceptionAsync(context, authEx);
+                    break;
+                default:
+                    _logger.LogError(ex, "Unhandled exception occurred");
+                    await HandleExceptionAsync(context);
+                    break;
+            }
         }
     }
 
     private static async Task HandleValidationExceptionAsync(HttpContext context, ValidationException exception)
     {
-        context.Response.ContentType = "application/json";
-        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-
-        var response = new
+        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+        await context.Response.WriteAsJsonAsync(new
         {
             title = "Validation Error",
-            status = context.Response.StatusCode,
+            status = StatusCodes.Status400BadRequest,
             errors = exception.Errors
-        };
+        });
+    }
 
-        await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+    private static async Task HandleAuthenticationExceptionAsync(HttpContext context, AuthenticationException exception)
+    {
+        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+        await context.Response.WriteAsJsonAsync(new
+        {
+            title = "Authentication Failed",
+            status = StatusCodes.Status401Unauthorized,
+            detail = exception.Message
+        });
     }
 
     private static async Task HandleExceptionAsync(HttpContext context)
     {
-        context.Response.ContentType = "application/json";
-        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-
-        var response = new
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        await context.Response.WriteAsJsonAsync(new
         {
             title = "Server Error",
-            status = context.Response.StatusCode,
+            status = StatusCodes.Status500InternalServerError,
             detail = "An unexpected error occurred. Please try again later."
-        };
-
-        await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+        });
     }
 }

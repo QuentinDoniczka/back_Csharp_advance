@@ -1,106 +1,307 @@
 namespace BackBase.Application.Tests.Commands.Login;
 
 using BackBase.Application.Commands.Login;
+using BackBase.Application.DTOs.Output;
+using BackBase.Application.Exceptions;
 using BackBase.Application.Interfaces;
+using BackBase.Domain.Entities;
+using BackBase.Domain.Interfaces;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
 public sealed class LoginCommandHandlerTests
 {
-    private readonly IAuthenticationService _authenticationService;
+    private readonly IIdentityService _identityService;
+    private readonly IJwtTokenService _jwtTokenService;
+    private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly LoginCommandHandler _handler;
+
+    private const string ValidEmail = "player@example.com";
+    private const string ValidPassword = "StrongPass1";
+    private const string GeneratedAccessToken = "access-token-value";
+    private const string GeneratedRawRefreshToken = "refresh-token-value";
+    private const string GeneratedRefreshHash = "refresh-hash-value";
 
     public LoginCommandHandlerTests()
     {
-        _authenticationService = Substitute.For<IAuthenticationService>();
-        _handler = new LoginCommandHandler(_authenticationService);
+        _identityService = Substitute.For<IIdentityService>();
+        _jwtTokenService = Substitute.For<IJwtTokenService>();
+        _refreshTokenRepository = Substitute.For<IRefreshTokenRepository>();
+        _handler = new LoginCommandHandler(_identityService, _jwtTokenService, _refreshTokenRepository);
+    }
+
+    private void SetupValidLoginFlow(Guid userId, string email, DateTime accessExpiry, DateTime refreshExpiry)
+    {
+        _identityService
+            .ValidateCredentialsAsync(email, Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(new IdentityUserResult(userId, email));
+
+        _jwtTokenService
+            .GenerateAccessToken(userId, email)
+            .Returns((GeneratedAccessToken, accessExpiry));
+
+        _jwtTokenService
+            .GenerateRefreshToken()
+            .Returns((GeneratedRawRefreshToken, GeneratedRefreshHash, refreshExpiry));
     }
 
     [Fact]
-    public async Task Handle_ValidCommand_ReturnsLoginResult()
+    public async Task Handle_ValidCommand_ReturnsAuthTokenResultWithCorrectAccessToken()
     {
         // Arrange
-        var email = "player@example.com";
-        var password = "StrongPass1";
-        var command = new LoginCommand(email, password);
-        var expectedAccessToken = "access-token-value";
-        var expectedRefreshToken = "refresh-token-value";
-        var expectedExpiry = DateTime.UtcNow.AddHours(1);
-        var expectedResult = new LoginResult(expectedAccessToken, expectedRefreshToken, expectedExpiry);
-
-        _authenticationService
-            .LoginAsync(email, password, Arg.Any<CancellationToken>())
-            .Returns(expectedResult);
+        var command = new LoginCommand(ValidEmail, ValidPassword);
+        var userId = Guid.NewGuid();
+        var accessExpiry = DateTime.UtcNow.AddHours(1);
+        SetupValidLoginFlow(userId, ValidEmail, accessExpiry, DateTime.UtcNow.AddDays(30));
 
         // Act
         var result = await _handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Equal(expectedAccessToken, result.AccessToken);
-        Assert.Equal(expectedRefreshToken, result.RefreshToken);
-        Assert.Equal(expectedExpiry, result.AccessTokenExpiresAt);
+        Assert.Equal(GeneratedAccessToken, result.AccessToken);
     }
 
     [Fact]
-    public async Task Handle_ValidCommand_DelegatesToAuthenticationService()
+    public async Task Handle_ValidCommand_ReturnsAuthTokenResultWithCorrectRefreshToken()
     {
         // Arrange
-        var email = "delegate@example.com";
-        var password = "Password123";
-        var command = new LoginCommand(email, password);
+        var command = new LoginCommand(ValidEmail, ValidPassword);
+        var userId = Guid.NewGuid();
+        SetupValidLoginFlow(userId, ValidEmail, DateTime.UtcNow.AddHours(1), DateTime.UtcNow.AddDays(30));
 
-        _authenticationService
-            .LoginAsync(email, password, Arg.Any<CancellationToken>())
-            .Returns(new LoginResult("token", "refresh", DateTime.UtcNow));
+        // Act
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        Assert.Equal(GeneratedRawRefreshToken, result.RefreshToken);
+    }
+
+    [Fact]
+    public async Task Handle_ValidCommand_ReturnsAuthTokenResultWithCorrectExpiry()
+    {
+        // Arrange
+        var command = new LoginCommand(ValidEmail, ValidPassword);
+        var userId = Guid.NewGuid();
+        var accessExpiry = DateTime.UtcNow.AddHours(1);
+        SetupValidLoginFlow(userId, ValidEmail, accessExpiry, DateTime.UtcNow.AddDays(30));
+
+        // Act
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        Assert.Equal(accessExpiry, result.AccessTokenExpiresAt);
+    }
+
+    [Fact]
+    public async Task Handle_ValidCommand_CallsValidateCredentialsWithCorrectArguments()
+    {
+        // Arrange
+        var command = new LoginCommand(ValidEmail, ValidPassword);
+        var userId = Guid.NewGuid();
+        SetupValidLoginFlow(userId, ValidEmail, DateTime.UtcNow.AddHours(1), DateTime.UtcNow.AddDays(30));
 
         // Act
         await _handler.Handle(command, CancellationToken.None);
 
         // Assert
-        await _authenticationService
+        await _identityService
             .Received(1)
-            .LoginAsync(email, password, Arg.Any<CancellationToken>());
+            .ValidateCredentialsAsync(ValidEmail, ValidPassword, Arg.Any<CancellationToken>());
     }
 
     [Fact]
-    public async Task Handle_ServiceThrowsException_PropagatesException()
+    public async Task Handle_ValidCommand_CallsGenerateAccessTokenWithUserIdAndEmail()
     {
         // Arrange
-        var email = "wrong@example.com";
-        var password = "WrongPassword1";
-        var command = new LoginCommand(email, password);
+        var command = new LoginCommand(ValidEmail, ValidPassword);
+        var userId = Guid.NewGuid();
+        SetupValidLoginFlow(userId, ValidEmail, DateTime.UtcNow.AddHours(1), DateTime.UtcNow.AddDays(30));
 
-        _authenticationService
-            .LoginAsync(email, password, Arg.Any<CancellationToken>())
-            .ThrowsAsync(new UnauthorizedAccessException("Invalid credentials"));
+        // Act
+        await _handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        _jwtTokenService
+            .Received(1)
+            .GenerateAccessToken(userId, ValidEmail);
+    }
+
+    [Fact]
+    public async Task Handle_ValidCommand_CallsGenerateRefreshToken()
+    {
+        // Arrange
+        var command = new LoginCommand(ValidEmail, ValidPassword);
+        var userId = Guid.NewGuid();
+        SetupValidLoginFlow(userId, ValidEmail, DateTime.UtcNow.AddHours(1), DateTime.UtcNow.AddDays(30));
+
+        // Act
+        await _handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        _jwtTokenService
+            .Received(1)
+            .GenerateRefreshToken();
+    }
+
+    [Fact]
+    public async Task Handle_ValidCommand_PersistsRefreshTokenViaAddAsync()
+    {
+        // Arrange
+        var command = new LoginCommand(ValidEmail, ValidPassword);
+        var userId = Guid.NewGuid();
+        SetupValidLoginFlow(userId, ValidEmail, DateTime.UtcNow.AddHours(1), DateTime.UtcNow.AddDays(30));
+
+        // Act
+        await _handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        await _refreshTokenRepository
+            .Received(1)
+            .AddAsync(Arg.Any<RefreshToken>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Handle_ValidCommand_CallsSaveChangesAsync()
+    {
+        // Arrange
+        var command = new LoginCommand(ValidEmail, ValidPassword);
+        var userId = Guid.NewGuid();
+        SetupValidLoginFlow(userId, ValidEmail, DateTime.UtcNow.AddHours(1), DateTime.UtcNow.AddDays(30));
+
+        // Act
+        await _handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        await _refreshTokenRepository
+            .Received(1)
+            .SaveChangesAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Handle_InvalidCredentials_ThrowsAuthenticationException()
+    {
+        // Arrange
+        var command = new LoginCommand("wrong@example.com", "WrongPassword1");
+
+        _identityService
+            .ValidateCredentialsAsync("wrong@example.com", "WrongPassword1", Arg.Any<CancellationToken>())
+            .ThrowsAsync(new AuthenticationException("Invalid credentials"));
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<UnauthorizedAccessException>(
+        var exception = await Assert.ThrowsAsync<AuthenticationException>(
             () => _handler.Handle(command, CancellationToken.None));
         Assert.Equal("Invalid credentials", exception.Message);
     }
 
     [Fact]
-    public async Task Handle_CancellationTokenPassed_ForwardsToCancellationToken()
+    public async Task Handle_InvalidCredentials_DoesNotGenerateTokens()
     {
         // Arrange
-        var email = "cancel@example.com";
-        var password = "Password123";
-        var command = new LoginCommand(email, password);
+        var command = new LoginCommand("wrong@example.com", "WrongPassword1");
+
+        _identityService
+            .ValidateCredentialsAsync("wrong@example.com", "WrongPassword1", Arg.Any<CancellationToken>())
+            .ThrowsAsync(new AuthenticationException("Invalid credentials"));
+
+        // Act
+        try { await _handler.Handle(command, CancellationToken.None); } catch { }
+
+        // Assert
+        _jwtTokenService
+            .DidNotReceive()
+            .GenerateAccessToken(Arg.Any<Guid>(), Arg.Any<string>());
+        _jwtTokenService
+            .DidNotReceive()
+            .GenerateRefreshToken();
+    }
+
+    [Fact]
+    public async Task Handle_CancellationTokenPassed_ForwardsToValidateCredentials()
+    {
+        // Arrange
+        var command = new LoginCommand(ValidEmail, ValidPassword);
         using var cts = new CancellationTokenSource();
         var token = cts.Token;
+        var userId = Guid.NewGuid();
 
-        _authenticationService
-            .LoginAsync(email, password, token)
-            .Returns(new LoginResult("token", "refresh", DateTime.UtcNow));
+        _identityService
+            .ValidateCredentialsAsync(ValidEmail, ValidPassword, token)
+            .Returns(new IdentityUserResult(userId, ValidEmail));
+
+        _jwtTokenService
+            .GenerateAccessToken(userId, ValidEmail)
+            .Returns(("token", DateTime.UtcNow));
+
+        _jwtTokenService
+            .GenerateRefreshToken()
+            .Returns(("refresh", "hash", DateTime.UtcNow.AddDays(30)));
 
         // Act
         await _handler.Handle(command, token);
 
         // Assert
-        await _authenticationService
+        await _identityService
             .Received(1)
-            .LoginAsync(email, password, token);
+            .ValidateCredentialsAsync(ValidEmail, ValidPassword, token);
+    }
+
+    [Fact]
+    public async Task Handle_CancellationTokenPassed_ForwardsToRepositoryAddAsync()
+    {
+        // Arrange
+        var command = new LoginCommand(ValidEmail, ValidPassword);
+        using var cts = new CancellationTokenSource();
+        var token = cts.Token;
+        var userId = Guid.NewGuid();
+
+        _identityService
+            .ValidateCredentialsAsync(ValidEmail, ValidPassword, token)
+            .Returns(new IdentityUserResult(userId, ValidEmail));
+
+        _jwtTokenService
+            .GenerateAccessToken(userId, ValidEmail)
+            .Returns(("token", DateTime.UtcNow));
+
+        _jwtTokenService
+            .GenerateRefreshToken()
+            .Returns(("refresh", "hash", DateTime.UtcNow.AddDays(30)));
+
+        // Act
+        await _handler.Handle(command, token);
+
+        // Assert
+        await _refreshTokenRepository
+            .Received(1)
+            .AddAsync(Arg.Any<RefreshToken>(), token);
+    }
+
+    [Fact]
+    public async Task Handle_CancellationTokenPassed_ForwardsToRepositorySaveChanges()
+    {
+        // Arrange
+        var command = new LoginCommand(ValidEmail, ValidPassword);
+        using var cts = new CancellationTokenSource();
+        var token = cts.Token;
+        var userId = Guid.NewGuid();
+
+        _identityService
+            .ValidateCredentialsAsync(ValidEmail, ValidPassword, token)
+            .Returns(new IdentityUserResult(userId, ValidEmail));
+
+        _jwtTokenService
+            .GenerateAccessToken(userId, ValidEmail)
+            .Returns(("token", DateTime.UtcNow));
+
+        _jwtTokenService
+            .GenerateRefreshToken()
+            .Returns(("refresh", "hash", DateTime.UtcNow.AddDays(30)));
+
+        // Act
+        await _handler.Handle(command, token);
+
+        // Assert
+        await _refreshTokenRepository
+            .Received(1)
+            .SaveChangesAsync(token);
     }
 }

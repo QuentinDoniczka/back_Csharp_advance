@@ -1,6 +1,6 @@
 namespace BackBase.Infrastructure.Data;
 
-using BackBase.Domain.Models;
+using BackBase.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;

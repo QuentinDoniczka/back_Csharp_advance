@@ -4,10 +4,11 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using BackBase.Application.Interfaces;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
-public sealed class JwtTokenService
+public sealed class JwtTokenService : IJwtTokenService
 {
     private readonly JwtSettings _jwtSettings;
 
@@ -39,13 +40,17 @@ public sealed class JwtTokenService
         return (new JwtSecurityTokenHandler().WriteToken(token), expiresAt);
     }
 
-    public string GenerateRefreshToken()
+    public (string RawToken, string TokenHash, DateTime ExpiresAt) GenerateRefreshToken()
     {
         var randomBytes = RandomNumberGenerator.GetBytes(64);
-        return Convert.ToBase64String(randomBytes);
+        var rawToken = Convert.ToBase64String(randomBytes);
+        var tokenHash = HashToken(rawToken);
+        var expiresAt = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpirationDays);
+
+        return (rawToken, tokenHash, expiresAt);
     }
 
-    public static string HashToken(string token)
+    public string HashToken(string token)
     {
         var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(token));
         return Convert.ToHexStringLower(bytes);
@@ -64,15 +69,22 @@ public sealed class JwtTokenService
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret))
         };
 
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var principal = tokenHandler.ValidateToken(accessToken, tokenValidationParameters, out var securityToken);
+        try
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var principal = tokenHandler.ValidateToken(accessToken, tokenValidationParameters, out var securityToken);
 
-        if (securityToken is not JwtSecurityToken jwtToken ||
-            !jwtToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.OrdinalIgnoreCase))
+            if (securityToken is not JwtSecurityToken jwtToken ||
+                !jwtToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.OrdinalIgnoreCase))
+            {
+                return null;
+            }
+
+            return principal;
+        }
+        catch
         {
             return null;
         }
-
-        return principal;
     }
 }

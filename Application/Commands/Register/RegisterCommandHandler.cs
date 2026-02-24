@@ -5,15 +5,16 @@ using MediatR;
 
 public sealed class RegisterCommandHandler : IRequestHandler<RegisterCommand, RegisterResult>
 {
-    private readonly IAuthenticationService _authenticationService;
+    private readonly IIdentityService _identityService;
 
-    public RegisterCommandHandler(IAuthenticationService authenticationService)
+    public RegisterCommandHandler(IIdentityService identityService)
     {
-        _authenticationService = authenticationService;
+        _identityService = identityService;
     }
 
     public async Task<RegisterResult> Handle(RegisterCommand request, CancellationToken cancellationToken)
     {
-        return await _authenticationService.RegisterAsync(request.Email, request.Password, cancellationToken).ConfigureAwait(false);
+        var user = await _identityService.RegisterAsync(request.Email, request.Password, cancellationToken).ConfigureAwait(false);
+        return new RegisterResult(user.UserId, user.Email);
     }
 }
