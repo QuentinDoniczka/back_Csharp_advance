@@ -31,15 +31,27 @@ Communication : francais avec l'utilisateur, anglais avec les agents.
    **Presente le resultat du brainstorm a l'utilisateur** avec ta recommandation. Si plusieurs options valides existent, laisse l'utilisateur choisir. Si une option est clairement superieure, recommande-la et avance sauf objection.
 3. **Analyser** — Delegue a `leaddev-backend` pour produire le plan technique base sur l'approche retenue.
 4. **Implementer** — Delegue directement a `dev-backend` sans attendre validation, sauf si le plan implique un choix d'architecture ambigu (dans ce cas, presente les options avec pour/contre et laisse choisir).
-5. **Refactorer** — **TOUJOURS apres l'implementation.** Delegue a `refacto-backend` sur chaque fichier cree ou modifie par `dev-backend`. L'agent analyse ET corrige directement les problemes trouves (dead code, SOLID, violations de couches, blocking calls, magic numbers, etc.). **Ne jamais sauter cette etape.**
-6. **Tester** — **TOUJOURS apres le refacto.** Delegue a `test-backend` pour :
+5. **Refactorer (fichiers)** — **TOUJOURS apres l'implementation.** Delegue a `refacto-backend` sur chaque fichier cree ou modifie par `dev-backend`. L'agent analyse ET corrige directement les problemes locaux (dead code, unused usings, naming, ConfigureAwait, magic numbers, blocking calls, etc.). **Ne jamais sauter cette etape.**
+6. **Audit architecture** — **TOUJOURS apres le refacto fichiers.** Deux sous-etapes :
+   a) Delegue a `review-backend` sur le **projet complet** (pas uniquement les fichiers modifies). L'agent doit auditer :
+      - Violations de couches (imports interdits, fichiers mal places)
+      - SOLID : SRP (God Classes), ISP (God Interfaces), DIP (injections concretes)
+      - Abstractions manquantes (repository, service interface)
+      - DRY (types dupliques, logique repetee)
+      - Securite (fuites d'info, secrets, exceptions exposees)
+      - Naming et conventions
+      L'agent produit un rapport classe par severite (CRITICAL, HIGH, MEDIUM, LOW).
+   b) **Si le rapport contient des issues CRITICAL ou HIGH** → delegue a `refacto-backend` avec le rapport complet en contexte. L'agent corrige tous les CRITICAL et HIGH. Puis re-build pour verifier la compilation.
+   c) **Si que MEDIUM/LOW ou aucun issue** → passer directement aux tests.
+   **Ne jamais sauter cette etape.**
+7. **Tester** — **TOUJOURS apres l'audit.** Delegue a `test-backend` pour :
    - Creer les projets de test si absents (`Tests/Domain.Tests`, `Tests/Application.Tests`)
    - Ecrire les tests unitaires pour chaque fichier cree/modifie (Domain + Application uniquement)
    - Executer `dotnet test` et verifier que tout passe
    - **Si les tests echouent a cause d'un bug dans le code source** → delegue a `dev-backend` pour corriger, puis re-delegue a `test-backend` pour re-verifier. **Max 2 allers-retours dev↔test.** Si ca ne passe toujours pas apres 2 tentatives, rapporte le probleme a l'utilisateur.
    - **Si les tests echouent a cause d'un bug dans le test** → `test-backend` corrige lui-meme et re-run.
    **Ne jamais sauter cette etape.**
-7. **Docker** — **TOUJOURS apres les tests.** Delegue a `docker-backend` pour :
+8. **Docker** — **TOUJOURS apres les tests.** Delegue a `docker-backend` pour :
    - Verifier/mettre a jour le `Dockerfile` (multi-stage build)
    - Verifier/mettre a jour le `compose.yaml` (services, volumes, healthchecks)
    - S'assurer que le `.env` est utilise pour les credentials (jamais de secrets en dur dans compose.yaml)
@@ -47,7 +59,7 @@ Communication : francais avec l'utilisateur, anglais avec les agents.
    - Builder et lancer les containers (`docker compose up --build -d`)
    - Verifier que les containers sont healthy
    **Ne jamais sauter cette etape.**
-8. **Rapport** — Resume **obligatoire**, max 15 lignes, en francais. Doit contenir :
+9. **Rapport** — Resume **obligatoire**, max 15 lignes, en francais. Doit contenir :
 
    ```
    ## Rapport
