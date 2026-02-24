@@ -7,6 +7,9 @@ public sealed class RegisterCommandValidatorTests
 {
     private readonly RegisterCommandValidator _validator;
 
+    private const string ValidEmail = "player@example.com";
+    private const string ValidPassword = "StrongPass1";
+
     public RegisterCommandValidatorTests()
     {
         _validator = new RegisterCommandValidator();
@@ -16,7 +19,7 @@ public sealed class RegisterCommandValidatorTests
     public void Validate_ValidCommand_HasNoValidationErrors()
     {
         // Arrange
-        var command = new RegisterCommand("player@example.com", "StrongPass1");
+        var command = new RegisterCommand(ValidEmail, ValidPassword);
 
         // Act
         var result = _validator.TestValidate(command);
@@ -29,7 +32,7 @@ public sealed class RegisterCommandValidatorTests
     public void Validate_EmptyEmail_HasValidationError()
     {
         // Arrange
-        var command = new RegisterCommand("", "StrongPass1");
+        var command = new RegisterCommand("", ValidPassword);
 
         // Act
         var result = _validator.TestValidate(command);
@@ -43,7 +46,7 @@ public sealed class RegisterCommandValidatorTests
     public void Validate_InvalidEmailFormat_HasValidationError()
     {
         // Arrange
-        var command = new RegisterCommand("not-an-email", "StrongPass1");
+        var command = new RegisterCommand("not-an-email", ValidPassword);
 
         // Act
         var result = _validator.TestValidate(command);
@@ -57,7 +60,7 @@ public sealed class RegisterCommandValidatorTests
     public void Validate_EmptyPassword_HasValidationError()
     {
         // Arrange
-        var command = new RegisterCommand("player@example.com", "");
+        var command = new RegisterCommand(ValidEmail, "");
 
         // Act
         var result = _validator.TestValidate(command);
@@ -71,8 +74,7 @@ public sealed class RegisterCommandValidatorTests
     public void Validate_PasswordTooShort_HasValidationError()
     {
         // Arrange
-        var shortPassword = "Abc1xyz";
-        var command = new RegisterCommand("player@example.com", shortPassword);
+        var command = new RegisterCommand(ValidEmail, "Abc1xyz");
 
         // Act
         var result = _validator.TestValidate(command);
@@ -86,8 +88,7 @@ public sealed class RegisterCommandValidatorTests
     public void Validate_PasswordWithoutUppercase_HasValidationError()
     {
         // Arrange
-        var noUppercasePassword = "lowercase1";
-        var command = new RegisterCommand("player@example.com", noUppercasePassword);
+        var command = new RegisterCommand(ValidEmail, "lowercase1");
 
         // Act
         var result = _validator.TestValidate(command);
@@ -101,8 +102,7 @@ public sealed class RegisterCommandValidatorTests
     public void Validate_PasswordWithoutLowercase_HasValidationError()
     {
         // Arrange
-        var noLowercasePassword = "UPPERCASE1";
-        var command = new RegisterCommand("player@example.com", noLowercasePassword);
+        var command = new RegisterCommand(ValidEmail, "UPPERCASE1");
 
         // Act
         var result = _validator.TestValidate(command);
@@ -116,8 +116,7 @@ public sealed class RegisterCommandValidatorTests
     public void Validate_PasswordWithoutDigit_HasValidationError()
     {
         // Arrange
-        var noDigitPassword = "NoDigitHere";
-        var command = new RegisterCommand("player@example.com", noDigitPassword);
+        var command = new RegisterCommand(ValidEmail, "NoDigitHere");
 
         // Act
         var result = _validator.TestValidate(command);
@@ -131,8 +130,7 @@ public sealed class RegisterCommandValidatorTests
     public void Validate_PasswordExactlyEightCharacters_HasNoPasswordLengthError()
     {
         // Arrange
-        var exactMinLengthPassword = "Abcdefg1";
-        var command = new RegisterCommand("player@example.com", exactMinLengthPassword);
+        var command = new RegisterCommand(ValidEmail, "Abcdefg1");
 
         // Act
         var result = _validator.TestValidate(command);

@@ -123,18 +123,23 @@ back_Csharp_advance/
 │   ├── Repositories/
 │   │   └── RefreshTokenRepository.cs
 │   └── DependencyInjection.cs
-├── Tests/
-│   └── Application.Tests/
-│       └── Commands/
-│           ├── Login/
-│           │   ├── LoginCommandHandlerTests.cs
-│           │   └── LoginCommandValidatorTests.cs
-│           ├── RefreshToken/
-│           │   ├── RefreshTokenCommandHandlerTests.cs
-│           │   └── RefreshTokenCommandValidatorTests.cs
-│           └── Register/
-│               ├── RegisterCommandHandlerTests.cs
-│               └── RegisterCommandValidatorTests.cs
+├── API.Tests/
+│   └── Middleware/
+│       └── ExceptionHandlingMiddlewareTests.cs
+├── Application.Tests/
+│   └── Commands/
+│       ├── Login/
+│       │   ├── LoginCommandHandlerTests.cs
+│       │   └── LoginCommandValidatorTests.cs
+│       ├── RefreshToken/
+│       │   ├── RefreshTokenCommandHandlerTests.cs
+│       │   └── RefreshTokenCommandValidatorTests.cs
+│       └── Register/
+│           ├── RegisterCommandHandlerTests.cs
+│           └── RegisterCommandValidatorTests.cs
+├── Domain.Tests/
+│   └── Entities/
+│       └── RefreshTokenTests.cs
 ├── Dockerfile
 └── compose.yaml
 ```

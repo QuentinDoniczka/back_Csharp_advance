@@ -11,6 +11,9 @@ public sealed class RegisterCommandHandlerTests
     private readonly IIdentityService _identityService;
     private readonly RegisterCommandHandler _handler;
 
+    private const string ValidEmail = "player@example.com";
+    private const string ValidPassword = "StrongPass1";
+
     public RegisterCommandHandlerTests()
     {
         _identityService = Substitute.For<IIdentityService>();
@@ -21,14 +24,12 @@ public sealed class RegisterCommandHandlerTests
     public async Task Handle_ValidCommand_ReturnsRegisterResultWithCorrectUserId()
     {
         // Arrange
-        var email = "player@example.com";
-        var password = "StrongPass1";
-        var command = new RegisterCommand(email, password);
+        var command = new RegisterCommand(ValidEmail, ValidPassword);
         var expectedUserId = Guid.NewGuid();
 
         _identityService
-            .RegisterAsync(email, password, Arg.Any<CancellationToken>())
-            .Returns(new IdentityUserResult(expectedUserId, email));
+            .RegisterAsync(ValidEmail, ValidPassword, Arg.Any<CancellationToken>())
+            .Returns(new IdentityUserResult(expectedUserId, ValidEmail));
 
         // Act
         var result = await _handler.Handle(command, CancellationToken.None);
@@ -42,33 +43,29 @@ public sealed class RegisterCommandHandlerTests
     public async Task Handle_ValidCommand_ReturnsRegisterResultWithCorrectEmail()
     {
         // Arrange
-        var email = "hero@example.com";
-        var password = "StrongPass1";
-        var command = new RegisterCommand(email, password);
+        var command = new RegisterCommand(ValidEmail, ValidPassword);
         var userId = Guid.NewGuid();
 
         _identityService
-            .RegisterAsync(email, password, Arg.Any<CancellationToken>())
-            .Returns(new IdentityUserResult(userId, email));
+            .RegisterAsync(ValidEmail, ValidPassword, Arg.Any<CancellationToken>())
+            .Returns(new IdentityUserResult(userId, ValidEmail));
 
         // Act
         var result = await _handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.Equal(email, result.Email);
+        Assert.Equal(ValidEmail, result.Email);
     }
 
     [Fact]
     public async Task Handle_ValidCommand_CallsRegisterAsyncWithCorrectArguments()
     {
         // Arrange
-        var email = "delegate@example.com";
-        var password = "Password123";
-        var command = new RegisterCommand(email, password);
+        var command = new RegisterCommand(ValidEmail, ValidPassword);
 
         _identityService
-            .RegisterAsync(email, password, Arg.Any<CancellationToken>())
-            .Returns(new IdentityUserResult(Guid.NewGuid(), email));
+            .RegisterAsync(ValidEmail, ValidPassword, Arg.Any<CancellationToken>())
+            .Returns(new IdentityUserResult(Guid.NewGuid(), ValidEmail));
 
         // Act
         await _handler.Handle(command, CancellationToken.None);
@@ -76,19 +73,17 @@ public sealed class RegisterCommandHandlerTests
         // Assert
         await _identityService
             .Received(1)
-            .RegisterAsync(email, password, Arg.Any<CancellationToken>());
+            .RegisterAsync(ValidEmail, ValidPassword, Arg.Any<CancellationToken>());
     }
 
     [Fact]
     public async Task Handle_ServiceThrowsException_PropagatesException()
     {
         // Arrange
-        var email = "existing@example.com";
-        var password = "Password123";
-        var command = new RegisterCommand(email, password);
+        var command = new RegisterCommand(ValidEmail, ValidPassword);
 
         _identityService
-            .RegisterAsync(email, password, Arg.Any<CancellationToken>())
+            .RegisterAsync(ValidEmail, ValidPassword, Arg.Any<CancellationToken>())
             .ThrowsAsync(new InvalidOperationException("User already exists"));
 
         // Act & Assert
@@ -101,15 +96,13 @@ public sealed class RegisterCommandHandlerTests
     public async Task Handle_CancellationTokenPassed_ForwardsToCancellationToken()
     {
         // Arrange
-        var email = "cancel@example.com";
-        var password = "Password123";
-        var command = new RegisterCommand(email, password);
+        var command = new RegisterCommand(ValidEmail, ValidPassword);
         using var cts = new CancellationTokenSource();
         var token = cts.Token;
 
         _identityService
-            .RegisterAsync(email, password, token)
-            .Returns(new IdentityUserResult(Guid.NewGuid(), email));
+            .RegisterAsync(ValidEmail, ValidPassword, token)
+            .Returns(new IdentityUserResult(Guid.NewGuid(), ValidEmail));
 
         // Act
         await _handler.Handle(command, token);
@@ -117,6 +110,6 @@ public sealed class RegisterCommandHandlerTests
         // Assert
         await _identityService
             .Received(1)
-            .RegisterAsync(email, password, token);
+            .RegisterAsync(ValidEmail, ValidPassword, token);
     }
 }

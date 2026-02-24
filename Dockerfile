@@ -12,7 +12,9 @@ COPY API/API.csproj API/
 COPY Application/Application.csproj Application/
 COPY Domain/Domain.csproj Domain/
 COPY Infrastructure/Infrastructure.csproj Infrastructure/
-COPY Tests/Application.Tests/Application.Tests.csproj Tests/Application.Tests/
+COPY Domain.Tests/Domain.Tests.csproj Domain.Tests/
+COPY Application.Tests/Application.Tests.csproj Application.Tests/
+COPY API.Tests/API.Tests.csproj API.Tests/
 
 RUN dotnet restore BackBase.sln
 

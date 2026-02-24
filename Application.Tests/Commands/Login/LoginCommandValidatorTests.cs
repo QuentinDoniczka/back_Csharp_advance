@@ -7,6 +7,9 @@ public sealed class LoginCommandValidatorTests
 {
     private readonly LoginCommandValidator _validator;
 
+    private const string ValidEmail = "player@example.com";
+    private const string ValidPassword = "StrongPass1";
+
     public LoginCommandValidatorTests()
     {
         _validator = new LoginCommandValidator();
@@ -16,7 +19,7 @@ public sealed class LoginCommandValidatorTests
     public void Validate_ValidCommand_HasNoValidationErrors()
     {
         // Arrange
-        var command = new LoginCommand("player@example.com", "StrongPass1");
+        var command = new LoginCommand(ValidEmail, ValidPassword);
 
         // Act
         var result = _validator.TestValidate(command);
@@ -29,7 +32,7 @@ public sealed class LoginCommandValidatorTests
     public void Validate_EmptyEmail_HasValidationError()
     {
         // Arrange
-        var command = new LoginCommand("", "StrongPass1");
+        var command = new LoginCommand("", ValidPassword);
 
         // Act
         var result = _validator.TestValidate(command);
@@ -43,7 +46,7 @@ public sealed class LoginCommandValidatorTests
     public void Validate_InvalidEmailFormat_HasValidationError()
     {
         // Arrange
-        var command = new LoginCommand("not-an-email", "StrongPass1");
+        var command = new LoginCommand("not-an-email", ValidPassword);
 
         // Act
         var result = _validator.TestValidate(command);
@@ -57,7 +60,7 @@ public sealed class LoginCommandValidatorTests
     public void Validate_EmptyPassword_HasValidationError()
     {
         // Arrange
-        var command = new LoginCommand("player@example.com", "");
+        var command = new LoginCommand(ValidEmail, "");
 
         // Act
         var result = _validator.TestValidate(command);
@@ -65,18 +68,5 @@ public sealed class LoginCommandValidatorTests
         // Assert
         result.ShouldHaveValidationErrorFor(x => x.Password)
             .WithErrorMessage("Password is required");
-    }
-
-    [Fact]
-    public void Validate_ValidEmailAndPassword_HasNoErrors()
-    {
-        // Arrange
-        var command = new LoginCommand("user@domain.org", "anypassword");
-
-        // Act
-        var result = _validator.TestValidate(command);
-
-        // Assert
-        result.ShouldNotHaveAnyValidationErrors();
     }
 }

@@ -7,6 +7,9 @@ public sealed class RefreshTokenCommandValidatorTests
 {
     private readonly RefreshTokenCommandValidator _validator;
 
+    private const string ValidAccessToken = "valid-access-token";
+    private const string ValidRefreshToken = "valid-refresh-token";
+
     public RefreshTokenCommandValidatorTests()
     {
         _validator = new RefreshTokenCommandValidator();
@@ -16,7 +19,7 @@ public sealed class RefreshTokenCommandValidatorTests
     public void Validate_ValidCommand_HasNoValidationErrors()
     {
         // Arrange
-        var command = new RefreshTokenCommand("valid-access-token", "valid-refresh-token");
+        var command = new RefreshTokenCommand(ValidAccessToken, ValidRefreshToken);
 
         // Act
         var result = _validator.TestValidate(command);
@@ -29,7 +32,7 @@ public sealed class RefreshTokenCommandValidatorTests
     public void Validate_EmptyAccessToken_HasValidationError()
     {
         // Arrange
-        var command = new RefreshTokenCommand("", "valid-refresh-token");
+        var command = new RefreshTokenCommand("", ValidRefreshToken);
 
         // Act
         var result = _validator.TestValidate(command);
@@ -43,7 +46,7 @@ public sealed class RefreshTokenCommandValidatorTests
     public void Validate_EmptyRefreshToken_HasValidationError()
     {
         // Arrange
-        var command = new RefreshTokenCommand("valid-access-token", "");
+        var command = new RefreshTokenCommand(ValidAccessToken, "");
 
         // Act
         var result = _validator.TestValidate(command);
