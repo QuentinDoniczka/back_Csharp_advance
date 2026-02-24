@@ -5,13 +5,13 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_DB: backbase
-      POSTGRES_USER: backbase
-      POSTGRES_PASSWORD: backbase_dev_password
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - backbase-db-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U backbase -d backbase"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -26,10 +26,10 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
-      - ConnectionStrings__DefaultConnection=Host=backbase-db;Port=5432;Database=backbase;Username=backbase;Password=backbase_dev_password
-      - JwtSettings__Secret=ThisIsADevelopmentSecretKeyThatIsAtLeast32CharactersLong!
-      - JwtSettings__Issuer=BackBase
-      - JwtSettings__Audience=BackBase
+      - ConnectionStrings__DefaultConnection=Host=backbase-db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      - JwtSettings__Secret=${JWT_SECRET}
+      - JwtSettings__Issuer=${JWT_ISSUER}
+      - JwtSettings__Audience=${JWT_AUDIENCE}
     depends_on:
       backbase-db:
         condition: service_healthy

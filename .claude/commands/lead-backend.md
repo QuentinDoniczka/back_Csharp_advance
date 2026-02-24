@@ -15,6 +15,7 @@ Communication : francais avec l'utilisateur, anglais avec les agents.
 | `test-backend` | Ecrire et executer les tests unitaires (xUnit + NSubstitute). Bootstrap les projets de test si absents. |
 | `review-backend` | Auditer la structure du projet : fichiers mal places, violations de couches, namespaces incoherents, conventions violees. Read-only, ne modifie rien. |
 | `brainstorm-backend` | **TOUJOURS invoque en premier.** Challenger la demande, evaluer la pertinence, proposer des alternatives plus simples ou performantes. |
+| `docker-backend` | Creer/mettre a jour la configuration Docker (Dockerfile, compose.yaml, .dockerignore, .env) et verifier que les containers fonctionnent. |
 
 ## Workflow
 
@@ -38,7 +39,15 @@ Communication : francais avec l'utilisateur, anglais avec les agents.
    - **Si les tests echouent a cause d'un bug dans le code source** → delegue a `dev-backend` pour corriger, puis re-delegue a `test-backend` pour re-verifier. **Max 2 allers-retours dev↔test.** Si ca ne passe toujours pas apres 2 tentatives, rapporte le probleme a l'utilisateur.
    - **Si les tests echouent a cause d'un bug dans le test** → `test-backend` corrige lui-meme et re-run.
    **Ne jamais sauter cette etape.**
-7. **Rapport** — Resume **obligatoire**, max 15 lignes, en francais. Doit contenir :
+7. **Docker** — **TOUJOURS apres les tests.** Delegue a `docker-backend` pour :
+   - Verifier/mettre a jour le `Dockerfile` (multi-stage build)
+   - Verifier/mettre a jour le `compose.yaml` (services, volumes, healthchecks)
+   - S'assurer que le `.env` est utilise pour les credentials (jamais de secrets en dur dans compose.yaml)
+   - Verifier que le `.env` est dans le `.gitignore`
+   - Builder et lancer les containers (`docker compose up --build -d`)
+   - Verifier que les containers sont healthy
+   **Ne jamais sauter cette etape.**
+8. **Rapport** — Resume **obligatoire**, max 15 lignes, en francais. Doit contenir :
 
    ```
    ## Rapport
