@@ -68,3 +68,39 @@ Communication:
 - Push back constructively when something doesn't align with best practices.
 - When suggesting architecture, consider scalability, maintainability, and testability.
 - If code belongs in the wrong layer, flag it immediately and explain where it should go.
+
+<!-- STRUCTURE:START -->
+# Project Structure
+
+```
+back_Csharp_advance/
+├── API/
+│   ├── Controllers/
+│   │   └── AuthController.cs
+│   ├── DTOs/
+│   │   ├── RegisterRequestDto.cs
+│   │   └── RegisterResponseDto.cs
+│   ├── Middleware/
+│   │   └── ExceptionHandlingMiddleware.cs
+│   ├── Program.cs
+│   ├── appsettings.json
+│   └── appsettings.Development.json
+├── Application/
+│   ├── Behaviors/
+│   │   └── ValidationBehavior.cs
+│   ├── Commands/
+│   │   └── Register/
+│   │       ├── RegisterCommand.cs
+│   │       ├── RegisterCommandHandler.cs
+│   │       ├── RegisterCommandValidator.cs
+│   │       └── RegisterResult.cs
+│   └── Exceptions/
+│       └── ValidationException.cs
+├── Domain/
+│   (empty)
+├── Infrastructure/
+│   └── Data/
+│       └── AppDbContext.cs
+└── compose.yaml
+```
+<!-- STRUCTURE:END -->

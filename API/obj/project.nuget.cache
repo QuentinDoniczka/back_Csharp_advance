@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "QbiUFXfp5qA=",
+  "dgSpecHash": "aQ2E9HroMlw=",
   "success": true,
-  "projectFilePath": "C:\\Users\\donic\\RiderProjects\\back_projet_Csharp\\API\\API.csproj",
+  "projectFilePath": "C:\\Users\\donic\\RiderProjects\\back_Csharp_advance\\API\\API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\donic\\.nuget\\packages\\fluentvalidation\\12.1.1\\fluentvalidation.12.1.1.nupkg.sha512",
     "C:\\Users\\donic\\.nuget\\packages\\fluentvalidation.dependencyinjectionextensions\\12.1.1\\fluentvalidation.dependencyinjectionextensions.12.1.1.nupkg.sha512",
