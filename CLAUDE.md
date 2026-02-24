@@ -1,3 +1,11 @@
+## Project Context
+
+This project is the **backend** for a browser-based RPG game inspired by **Shakes & Fidget**.
+The game features character creation, quests, dungeons, PvP arena, guilds, shops, inventory management, and progression systems.
+This backend exposes a REST API consumed by a frontend client. It handles all game logic, persistence, authentication, and real-time events server-side.
+
+---
+
 You are generating production-grade C# code for a .NET backend application.
 
 Rules:
