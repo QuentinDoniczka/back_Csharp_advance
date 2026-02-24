@@ -2,11 +2,11 @@ using FluentValidation.Results;
 
 namespace BackBase.Application.Exceptions;
 
-public class ValidationException : Exception
+public sealed class ValidationException : Exception
 {
     public IDictionary<string, string[]> Errors { get; }
 
-    public ValidationException() : base("Une ou plusieurs erreurs de validation se sont produites.")
+    public ValidationException() : base("One or more validation errors occurred.")
     {
         Errors = new Dictionary<string, string[]>();
     }

@@ -1,28 +1,20 @@
-using FluentValidation;
-
 namespace BackBase.Application.Commands.Register;
 
-public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
+using FluentValidation;
+
+public sealed class RegisterCommandValidator : AbstractValidator<RegisterCommand>
 {
     public RegisterCommandValidator()
     {
         RuleFor(x => x.Email)
-            .NotEmpty().WithMessage("L'email est requis")
-            .EmailAddress().WithMessage("L'email n'est pas valide");
+            .NotEmpty().WithMessage("Email is required")
+            .EmailAddress().WithMessage("Email is not valid");
 
         RuleFor(x => x.Password)
-            .NotEmpty().WithMessage("Le mot de passe est requis")
-            .MinimumLength(8).WithMessage("Le mot de passe doit contenir au moins 8 caractères")
-            .Matches("[A-Z]").WithMessage("Le mot de passe doit contenir au moins une majuscule")
-            .Matches("[a-z]").WithMessage("Le mot de passe doit contenir au moins une minuscule")
-            .Matches("[0-9]").WithMessage("Le mot de passe doit contenir au moins un chiffre");
-
-        RuleFor(x => x.FirstName)
-            .NotEmpty().WithMessage("Le prénom est requis")
-            .MaximumLength(50).WithMessage("Le prénom ne doit pas dépasser 50 caractères");
-
-        RuleFor(x => x.LastName)
-            .NotEmpty().WithMessage("Le nom est requis")
-            .MaximumLength(50).WithMessage("Le nom ne doit pas dépasser 50 caractères");
+            .NotEmpty().WithMessage("Password is required")
+            .MinimumLength(8).WithMessage("Password must be at least 8 characters")
+            .Matches("[A-Z]").WithMessage("Password must contain at least one uppercase letter")
+            .Matches("[a-z]").WithMessage("Password must contain at least one lowercase letter")
+            .Matches("[0-9]").WithMessage("Password must contain at least one digit");
     }
 }

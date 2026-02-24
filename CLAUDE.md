@@ -66,6 +66,10 @@ back_Csharp_advance/
 │   ├── Controllers/
 │   │   └── AuthController.cs
 │   ├── DTOs/
+│   │   ├── LoginRequestDto.cs
+│   │   ├── LoginResponseDto.cs
+│   │   ├── RefreshTokenRequestDto.cs
+│   │   ├── RefreshTokenResponseDto.cs
 │   │   ├── RegisterRequestDto.cs
 │   │   └── RegisterResponseDto.cs
 │   ├── Middleware/
@@ -77,18 +81,39 @@ back_Csharp_advance/
 │   ├── Behaviors/
 │   │   └── ValidationBehavior.cs
 │   ├── Commands/
+│   │   ├── Login/
+│   │   │   ├── LoginCommand.cs
+│   │   │   ├── LoginCommandHandler.cs
+│   │   │   ├── LoginCommandValidator.cs
+│   │   │   └── LoginResult.cs
+│   │   ├── RefreshToken/
+│   │   │   ├── RefreshTokenCommand.cs
+│   │   │   ├── RefreshTokenCommandHandler.cs
+│   │   │   ├── RefreshTokenCommandValidator.cs
+│   │   │   └── RefreshTokenResult.cs
 │   │   └── Register/
 │   │       ├── RegisterCommand.cs
 │   │       ├── RegisterCommandHandler.cs
 │   │       ├── RegisterCommandValidator.cs
 │   │       └── RegisterResult.cs
-│   └── Exceptions/
-│       └── ValidationException.cs
+│   ├── Exceptions/
+│   │   ├── AuthenticationException.cs
+│   │   └── ValidationException.cs
+│   └── Interfaces/
+│       └── IAuthenticationService.cs
 ├── Domain/
-│   (empty)
+│   └── Models/
+│       └── RefreshToken.cs
 ├── Infrastructure/
-│   └── Data/
-│       └── AppDbContext.cs
+│   ├── Authentication/
+│   │   ├── AuthenticationService.cs
+│   │   ├── JwtSettings.cs
+│   │   └── JwtTokenService.cs
+│   ├── Data/
+│   │   ├── Configurations/
+│   │   │   └── RefreshTokenConfiguration.cs
+│   │   └── AppDbContext.cs
+│   └── DependencyInjection.cs
 ├── Tests/
 │   ├── Domain.Tests/
 │   └── Application.Tests/

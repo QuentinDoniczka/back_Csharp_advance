@@ -1,13 +1,15 @@
-using MediatR;
-using Microsoft.AspNetCore.Mvc;
-using BackBase.Application.Commands.Register;
-using BackBase.API.DTOs;
-
 namespace BackBase.API.Controllers;
 
+using BackBase.API.DTOs;
+using BackBase.Application.Commands.Login;
+using BackBase.Application.Commands.RefreshToken;
+using BackBase.Application.Commands.Register;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+
 [ApiController]
-[Route("api/[controller]")]
-public class AuthController : ControllerBase
+[Route("api/auth")]
+public sealed class AuthController : ControllerBase
 {
     private readonly IMediator _mediator;
 
@@ -19,28 +21,24 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequestDto request)
     {
-        var command = new RegisterCommand(
-            Email: request.Email,
-            Password: request.Password,
-            FirstName: request.FirstName,
-            LastName: request.LastName
-        );
-
+        var command = new RegisterCommand(request.Email, request.Password);
         var result = await _mediator.Send(command);
-
-        var response = new RegisterResponseDto
-        {
-            Id = result.Id,
-            Email = result.Email,
-            FullName = result.FullName
-        };
-
-        return CreatedAtAction(nameof(GetUser), new { id = result.Id }, response);
+        return Ok(new RegisterResponseDto(result.UserId, result.Email));
     }
 
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetUser(Guid id)
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
     {
-        return Ok();
+        var command = new LoginCommand(request.Email, request.Password);
+        var result = await _mediator.Send(command);
+        return Ok(new LoginResponseDto(result.AccessToken, result.RefreshToken, result.AccessTokenExpiresAt));
+    }
+
+    [HttpPost("refresh-token")]
+    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequestDto request)
+    {
+        var command = new RefreshTokenCommand(request.AccessToken, request.RefreshToken);
+        var result = await _mediator.Send(command);
+        return Ok(new RefreshTokenResponseDto(result.AccessToken, result.RefreshToken, result.AccessTokenExpiresAt));
     }
 }

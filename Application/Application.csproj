@@ -8,17 +8,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="DTOs\Requests\" />
-      <Folder Include="DTOs\Responses\" />
-      <Folder Include="Interfaces\IRepositories\" />
-      <Folder Include="Interfaces\IServices\" />
-      <Folder Include="Services\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <PackageReference Include="FluentValidation" Version="12.1.1" />
       <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
       <PackageReference Include="MediatR" Version="14.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Domain\Domain.csproj" />
     </ItemGroup>
 
 </Project>

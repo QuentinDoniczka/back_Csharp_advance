@@ -1,4 +1,22 @@
 services:
+  backbase-db:
+    image: postgres:17
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: backbase
+      POSTGRES_USER: backbase
+      POSTGRES_PASSWORD: backbase_dev_password
+    volumes:
+      - backbase-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U backbase -d backbase"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
   backbase-api:
     build:
       context: .
@@ -8,9 +26,13 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 15s
+      - ConnectionStrings__DefaultConnection=Host=backbase-db;Port=5432;Database=backbase;Username=backbase;Password=backbase_dev_password
+      - JwtSettings__Secret=ThisIsADevelopmentSecretKeyThatIsAtLeast32CharactersLong!
+      - JwtSettings__Issuer=BackBase
+      - JwtSettings__Audience=BackBase
+    depends_on:
+      backbase-db:
+        condition: service_healthy
+
+volumes:
+  backbase-db-data:

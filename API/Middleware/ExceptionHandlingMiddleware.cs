@@ -4,13 +4,15 @@ using BackBase.Application.Exceptions;
 
 namespace BackBase.API.Middleware;
 
-public class ExceptionHandlingMiddleware
+public sealed class ExceptionHandlingMiddleware
 {
     private readonly RequestDelegate _next;
+    private readonly ILogger<ExceptionHandlingMiddleware> _logger;
 
-    public ExceptionHandlingMiddleware(RequestDelegate next)
+    public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
     {
         _next = next;
+        _logger = logger;
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -23,9 +25,17 @@ public class ExceptionHandlingMiddleware
         {
             await HandleValidationExceptionAsync(context, ex);
         }
+        catch (AuthenticationException ex)
+        {
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            context.Response.ContentType = "application/json";
+            var response = new { title = "Authentication Failed", status = 401, detail = ex.Message };
+            await context.Response.WriteAsJsonAsync(response);
+        }
         catch (Exception ex)
         {
-            await HandleExceptionAsync(context, ex);
+            _logger.LogError(ex, "Unhandled exception occurred");
+            await HandleExceptionAsync(context);
         }
     }
 
@@ -44,7 +54,7 @@ public class ExceptionHandlingMiddleware
         await context.Response.WriteAsync(JsonSerializer.Serialize(response));
     }
 
-    private static async Task HandleExceptionAsync(HttpContext context, Exception exception)
+    private static async Task HandleExceptionAsync(HttpContext context)
     {
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
@@ -53,7 +63,7 @@ public class ExceptionHandlingMiddleware
         {
             title = "Server Error",
             status = context.Response.StatusCode,
-            detail = exception.Message
+            detail = "An unexpected error occurred. Please try again later."
         };
 
         await context.Response.WriteAsync(JsonSerializer.Serialize(response));

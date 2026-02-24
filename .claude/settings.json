@@ -8,27 +8,7 @@
       "Write",
       "Edit",
       "MultiEdit",
-      "Bash(git:*)",
-      "Bash(dotnet:*)",
-      "Bash(ls:*)",
-      "Bash(cat:*)",
-      "Bash(grep:*)",
-      "Bash(find:*)",
-      "Bash(mkdir:*)",
-      "Bash(cp:*)",
-      "Bash(mv:*)",
-      "Bash(echo:*)",
-      "Bash(touch:*)",
-      "Bash(gh:*)",
-      "Bash(tree:*)",
-      "Bash(dir:*)",
-      "Bash(rm:*)",
-      "Bash(rm -f:*)",
-      "Bash(rm -rf:*)",
-      "Bash(rmdir:*)",
-      "Bash(docker:*)",
-      "Bash(docker compose:*)",
-      "Bash(curl:*)"
+      "Bash(*)"
     ],
     "ask": [
       "Bash(git push:*)"
