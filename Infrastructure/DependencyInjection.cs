@@ -20,7 +20,7 @@ public static class DependencyInjection
         services.AddDbContext<AppDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
-        services.AddIdentityCore<IdentityUser<Guid>>(options =>
+        services.AddIdentityCore<ApplicationUser>(options =>
         {
             options.Password.RequireDigit = true;
             options.Password.RequireLowercase = true;
@@ -53,7 +53,7 @@ public static class DependencyInjection
 
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IIdentityService, IdentityService>();
-        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<IRevokedTokenRepository, RevokedTokenRepository>();
 
         return services;
     }

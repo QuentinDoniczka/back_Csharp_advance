@@ -7,16 +7,16 @@ using Microsoft.AspNetCore.Identity;
 
 public sealed class IdentityService : IIdentityService
 {
-    private readonly UserManager<IdentityUser<Guid>> _userManager;
+    private readonly UserManager<ApplicationUser> _userManager;
 
-    public IdentityService(UserManager<IdentityUser<Guid>> userManager)
+    public IdentityService(UserManager<ApplicationUser> userManager)
     {
         _userManager = userManager;
     }
 
     public async Task<IdentityUserResult> RegisterAsync(string email, string password, CancellationToken cancellationToken = default)
     {
-        var user = new IdentityUser<Guid> { UserName = email, Email = email };
+        var user = new ApplicationUser { UserName = email, Email = email };
         var result = await _userManager.CreateAsync(user, password).ConfigureAwait(false);
 
         if (!result.Succeeded)
@@ -49,5 +49,12 @@ public sealed class IdentityService : IIdentityService
     {
         var user = await _userManager.FindByIdAsync(userId.ToString()).ConfigureAwait(false);
         return user is null ? null : new IdentityUserResult(user.Id, user.Email!);
+    }
+
+    public async Task<bool> IsBannedAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString()).ConfigureAwait(false);
+        if (user is null) return false;
+        return user.BannedUntil.HasValue && user.BannedUntil.Value > DateTime.UtcNow;
     }
 }

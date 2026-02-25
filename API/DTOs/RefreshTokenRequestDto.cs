@@ -1,3 +1,3 @@
 namespace BackBase.API.DTOs;
 
-public record RefreshTokenRequestDto(string AccessToken, string RefreshToken);
+public record RefreshTokenRequestDto(string RefreshToken);

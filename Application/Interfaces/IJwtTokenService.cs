@@ -1,11 +1,10 @@
 namespace BackBase.Application.Interfaces;
 
-using System.Security.Claims;
+using BackBase.Application.DTOs.Output;
 
 public interface IJwtTokenService
 {
     (string Token, DateTime ExpiresAt) GenerateAccessToken(Guid userId, string email);
-    (string RawToken, string TokenHash, DateTime ExpiresAt) GenerateRefreshToken();
-    string HashToken(string token);
-    ClaimsPrincipal? GetPrincipalFromExpiredToken(string accessToken);
+    (string Token, DateTime ExpiresAt) GenerateRefreshToken(Guid userId, string email);
+    RefreshTokenInfo? ValidateAndExtractRefreshTokenInfo(string refreshToken);
 }

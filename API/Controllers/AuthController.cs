@@ -2,6 +2,7 @@ namespace BackBase.API.Controllers;
 
 using BackBase.API.DTOs;
 using BackBase.Application.Commands.Login;
+using BackBase.Application.Commands.Logout;
 using BackBase.Application.Commands.RefreshToken;
 using BackBase.Application.Commands.Register;
 using MediatR;
@@ -37,8 +38,16 @@ public sealed class AuthController : ControllerBase
     [HttpPost("refresh-token")]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequestDto request, CancellationToken cancellationToken)
     {
-        var command = new RefreshTokenCommand(request.AccessToken, request.RefreshToken);
+        var command = new RefreshTokenCommand(request.RefreshToken);
         var result = await _mediator.Send(command, cancellationToken);
         return Ok(new RefreshTokenResponseDto(result.AccessToken, result.RefreshToken, result.AccessTokenExpiresAt));
+    }
+
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout([FromBody] LogoutRequestDto request, CancellationToken cancellationToken)
+    {
+        var command = new LogoutCommand(request.RefreshToken);
+        await _mediator.Send(command, cancellationToken);
+        return NoContent();
     }
 }

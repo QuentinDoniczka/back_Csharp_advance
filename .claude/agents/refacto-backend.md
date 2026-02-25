@@ -52,6 +52,7 @@ If a file is in the wrong layer → **move it and fix namespaces BEFORE any othe
 ### CRITICAL — Layer Violations & Blocking Issues
 
 - **Domain referencing Infrastructure or Application** — Domain must have zero external dependencies
+- **Infrastructure packages leaking into Application** — Application must NOT reference JWT libs (`System.IdentityModel.Tokens.Jwt`), Identity libs, EF Core, or any infrastructure-specific package. If Application handlers parse JWT claims directly (`JwtRegisteredClaimNames`, `ClaimsPrincipal` from tokens), extract the parsing into a service interface method that returns a typed DTO instead.
 - **Business logic in Controllers** — must be in Application handlers or Domain services
 - **Validation in API layer** — must be FluentValidation in Application layer
 - **Blocking calls** — `.Result`, `.Wait()`, `.GetAwaiter().GetResult()` → replace with `await`
@@ -62,10 +63,11 @@ If a file is in the wrong layer → **move it and fix namespaces BEFORE any othe
 
 - **Service Locator pattern** — `IServiceProvider.GetService<T>()` in business code → constructor injection
 - **Fat Controllers** — Controllers doing more than MediatR dispatch → extract to handlers
-- **Entities with public setters** — must use private setters + factory methods
+- **Entities with public setters** — must use private setters + factory methods. **Includes Identity entities** (e.g., `ApplicationUser`) — use private setters + mutation methods like `Ban(DateTime until)`, `Unban()`
 - **Exposed domain entities in API responses** — must use DTOs
 - **Hardcoded connection strings, secrets, or config values** — use `IConfiguration` or `IOptions<T>`
 - **Synchronous I/O** — `DbContext.SaveChanges()` → `SaveChangesAsync()`, `File.ReadAllText` → `File.ReadAllTextAsync`
+- **Duplicated logic across handlers (DRY)** — If 2+ handlers contain near-identical code (e.g., token validation + claim extraction, entity creation boilerplate), extract into a shared service method or a private helper. Grep for the duplicated pattern across all handlers to find all occurrences.
 
 ### MEDIUM — SOLID & Design
 
@@ -75,13 +77,17 @@ If a file is in the wrong layer → **move it and fix namespaces BEFORE any othe
 - **God classes** — handlers/services exceeding 100 lines → extract methods or separate handlers
 - **Missing async propagation** — async method calling sync method that has async alternative
 - **Over-injection** — constructor with 5+ dependencies → consider splitting the class
+- **Duplicated private methods across classes** — If `GenerateToken`, `BuildClaims`, or similar private methods are nearly identical in 2+ service classes → extract a shared private method or a common base, or consolidate into one method with parameters
+- **Inline fully-qualified type references** — `System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Jti` inline → add a proper `using` directive instead
+- **Missing CultureInfo on parsing** — `int.Parse()`, `long.Parse()`, `decimal.Parse()` without `CultureInfo.InvariantCulture` → add it for locale-safe parsing
 
 ### LOW — Dead Code & Cleanup
 
 - Unused variables/methods, commented code, stale TODOs, unused usings → remove
 - **Unused files** — Grep the entire project for references. If a `.cs` file is never referenced, flag it for deletion
-- **Unused functions** — If a public/internal method has zero callers across the project, remove it
-- Magic numbers or strings → extract to constants or configuration
+- **Unused functions** — If a public/internal method has zero callers across the project, remove it. **Always Grep the full solution** (`**/*.cs`) for the method name before concluding it's unused. Check both production code AND test files — if only tests call it, it's still used.
+- **Magic strings** — Repeated string literals (especially claim names, token types, error messages used in 2+ places) → extract to `private const` fields or a shared constants class
+- Magic numbers → extract to constants or configuration
 
 ### DESIGN PATTERNS — Only When Justified
 

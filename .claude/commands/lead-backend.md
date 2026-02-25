@@ -13,7 +13,8 @@ Communication : francais avec l'utilisateur, anglais avec les agents.
 | `dev-backend` | Implementer le code (classes, interfaces, handlers, controllers, DTOs, entities, repositories...) |
 | `refacto-backend` | Refactorer, optimiser, nettoyer, appliquer les patterns, corriger les violations de couches |
 | `test-backend` | Ecrire et executer les tests unitaires (xUnit + NSubstitute). Bootstrap les projets de test si absents. |
-| `review-backend` | Auditer la structure du projet : fichiers mal places, violations de couches, namespaces incoherents, conventions violees. Read-only, ne modifie rien. |
+| `review-commit` | Auditer UNIQUEMENT les fichiers modifies/crees dans le dernier commit ou les changements non commites. Leger et scope. Remplace `review-backend` dans la chaine principale. Read-only. |
+| `review-backend` | Audit COMPLET du projet entier. Utilise uniquement sur demande explicite (hors chaine principale). Read-only. |
 | `brainstorm-backend` | **TOUJOURS invoque en premier.** Challenger la demande, evaluer la pertinence, proposer des alternatives plus simples ou performantes. |
 | `docker-backend` | Creer/mettre a jour la configuration Docker (Dockerfile, compose.yaml, .dockerignore, .env) et verifier que les containers fonctionnent. |
 
@@ -31,19 +32,19 @@ Communication : francais avec l'utilisateur, anglais avec les agents.
    **Presente le resultat du brainstorm a l'utilisateur** avec ta recommandation. Si plusieurs options valides existent, laisse l'utilisateur choisir. Si une option est clairement superieure, recommande-la et avance sauf objection.
 3. **Analyser** — Delegue a `leaddev-backend` pour produire le plan technique base sur l'approche retenue.
 4. **Implementer** — Delegue directement a `dev-backend` sans attendre validation, sauf si le plan implique un choix d'architecture ambigu (dans ce cas, presente les options avec pour/contre et laisse choisir).
-5. **Refactorer (fichiers)** — **TOUJOURS apres l'implementation.** Delegue a `refacto-backend` sur chaque fichier cree ou modifie par `dev-backend`. L'agent analyse ET corrige directement les problemes locaux (dead code, unused usings, naming, ConfigureAwait, magic numbers, blocking calls, etc.). **Ne jamais sauter cette etape.**
-6. **Audit architecture** — **TOUJOURS apres le refacto fichiers.** Deux sous-etapes :
-   a) Delegue a `review-backend` sur le **projet complet** (pas uniquement les fichiers modifies). L'agent doit auditer :
-      - Violations de couches (imports interdits, fichiers mal places)
-      - SOLID : SRP (God Classes), ISP (God Interfaces), DIP (injections concretes)
-      - Abstractions manquantes (repository, service interface)
-      - DRY (types dupliques, logique repetee)
-      - Securite (fuites d'info, secrets, exceptions exposees)
+5. **Refactorer (fichiers)** — **TOUJOURS apres l'implementation.** Delegue a `refacto-backend` sur chaque fichier cree ou modifie par `dev-backend`. L'agent analyse ET corrige directement les problemes locaux (dead code, unused usings, naming, ConfigureAwait, magic strings → constantes, DRY entre handlers, infrastructure libs qui leakent dans Application, public setters sur entites, inline FQN, CultureInfo manquant, etc.). **Ne jamais sauter cette etape.**
+6. **Audit commit** — **TOUJOURS apres le refacto fichiers.** Deux sous-etapes :
+   a) Delegue a `review-commit` (PAS `review-backend`). L'agent n'audite QUE les fichiers crees/modifies dans cette feature. Il verifie :
+      - Violations de couches sur les fichiers touches
+      - DRY entre les fichiers touches et le reste du projet
+      - SOLID sur les classes modifiees
       - Naming et conventions
+      - Cross-reference (interfaces ↔ implementations, handlers ↔ tests, entities ↔ EF configs)
       L'agent produit un rapport classe par severite (CRITICAL, HIGH, MEDIUM, LOW).
    b) **Si le rapport contient des issues CRITICAL ou HIGH** → delegue a `refacto-backend` avec le rapport complet en contexte. L'agent corrige tous les CRITICAL et HIGH. Puis re-build pour verifier la compilation.
    c) **Si que MEDIUM/LOW ou aucun issue** → passer directement aux tests.
    **Ne jamais sauter cette etape.**
+   > **Note** : `review-backend` (audit complet du projet entier) reste disponible mais n'est utilise que sur demande explicite de l'utilisateur, en dehors de cette chaine.
 7. **Tester** — **TOUJOURS apres l'audit.** Delegue a `test-backend` pour :
    - Creer les projets de test si absents (`Tests/Domain.Tests`, `Tests/Application.Tests`)
    - Ecrire les tests unitaires pour chaque fichier cree/modifie (Domain + Application uniquement)

@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BackBase.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialAuth : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -31,6 +31,7 @@ namespace BackBase.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    BannedUntil = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -52,20 +53,18 @@ namespace BackBase.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "RefreshTokens",
+                name: "RevokedTokens",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    TokenHash = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    Jti = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     ExpiresAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    RevokedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    ReplacedByTokenHash = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true)
+                    RevokedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RefreshTokens", x => x.Id);
+                    table.PrimaryKey("PK_RevokedTokens", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -212,14 +211,15 @@ namespace BackBase.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_RefreshTokens_TokenHash",
-                table: "RefreshTokens",
-                column: "TokenHash");
+                name: "IX_RevokedTokens_ExpiresAt",
+                table: "RevokedTokens",
+                column: "ExpiresAt");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RefreshTokens_UserId",
-                table: "RefreshTokens",
-                column: "UserId");
+                name: "IX_RevokedTokens_Jti",
+                table: "RevokedTokens",
+                column: "Jti",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -241,7 +241,7 @@ namespace BackBase.Infrastructure.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "RefreshTokens");
+                name: "RevokedTokens");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

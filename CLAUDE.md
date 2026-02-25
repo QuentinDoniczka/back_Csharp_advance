@@ -68,6 +68,7 @@ back_Csharp_advance/
 │   ├── DTOs/
 │   │   ├── LoginRequestDto.cs
 │   │   ├── LoginResponseDto.cs
+│   │   ├── LogoutRequestDto.cs
 │   │   ├── RefreshTokenRequestDto.cs
 │   │   ├── RefreshTokenResponseDto.cs
 │   │   ├── RegisterRequestDto.cs
@@ -85,6 +86,10 @@ back_Csharp_advance/
 │   │   │   ├── LoginCommand.cs
 │   │   │   ├── LoginCommandHandler.cs
 │   │   │   └── LoginCommandValidator.cs
+│   │   ├── Logout/
+│   │   │   ├── LogoutCommand.cs
+│   │   │   ├── LogoutCommandHandler.cs
+│   │   │   └── LogoutCommandValidator.cs
 │   │   ├── RefreshToken/
 │   │   │   ├── RefreshTokenCommand.cs
 │   │   │   ├── RefreshTokenCommandHandler.cs
@@ -97,7 +102,8 @@ back_Csharp_advance/
 │   ├── DTOs/
 │   │   └── Output/
 │   │       ├── AuthTokenResult.cs
-│   │       └── IdentityUserResult.cs
+│   │       ├── IdentityUserResult.cs
+│   │       └── RefreshTokenInfo.cs
 │   ├── Exceptions/
 │   │   ├── AuthenticationException.cs
 │   │   └── ValidationException.cs
@@ -106,22 +112,22 @@ back_Csharp_advance/
 │       └── IJwtTokenService.cs
 ├── Domain/
 │   ├── Entities/
-│   │   └── RefreshToken.cs
+│   │   └── RevokedToken.cs
 │   └── Interfaces/
-│       └── IRefreshTokenRepository.cs
+│       └── IRevokedTokenRepository.cs
 ├── Infrastructure/
 │   ├── Authentication/
+│   │   ├── ApplicationUser.cs
 │   │   ├── IdentityService.cs
 │   │   ├── JwtSettings.cs
 │   │   └── JwtTokenService.cs
 │   ├── Data/
 │   │   ├── Configurations/
-│   │   │   └── RefreshTokenConfiguration.cs
+│   │   │   └── RevokedTokenConfiguration.cs
 │   │   └── AppDbContext.cs
-│   ├── Migrations/
-│   │   └── ...
+│   ├── Migrations/ (3 files)
 │   ├── Repositories/
-│   │   └── RefreshTokenRepository.cs
+│   │   └── RevokedTokenRepository.cs
 │   └── DependencyInjection.cs
 ├── API.Tests/
 │   └── Middleware/
@@ -139,8 +145,7 @@ back_Csharp_advance/
 │           └── RegisterCommandValidatorTests.cs
 ├── Domain.Tests/
 │   └── Entities/
-│       └── RefreshTokenTests.cs
-├── Dockerfile
+│       └── RevokedTokenTests.cs
 └── compose.yaml
 ```
 <!-- STRUCTURE:END -->
