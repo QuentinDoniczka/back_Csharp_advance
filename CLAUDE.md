@@ -79,6 +79,11 @@ back_Csharp_advance/
 │   ├── appsettings.json
 │   └── appsettings.Development.json
 ├── Application/
+│   ├── Authorization/
+│   │   ├── MinimumRoleAttribute.cs
+│   │   ├── MinimumRoleHandler.cs
+│   │   ├── MinimumRoleRequirement.cs
+│   │   └── RoleHierarchy.cs
 │   ├── Behaviors/
 │   │   └── ValidationBehavior.cs
 │   ├── Commands/
@@ -99,6 +104,8 @@ back_Csharp_advance/
 │   │       ├── RegisterCommandHandler.cs
 │   │       ├── RegisterCommandValidator.cs
 │   │       └── RegisterResult.cs
+│   ├── Constants/
+│   │   └── RoleLevel.cs
 │   ├── DTOs/
 │   │   └── Output/
 │   │       ├── AuthTokenResult.cs
@@ -121,6 +128,8 @@ back_Csharp_advance/
 │   │   ├── IdentityService.cs
 │   │   ├── JwtSettings.cs
 │   │   └── JwtTokenService.cs
+│   ├── Authorization/
+│   │   └── MinimumRoleHandler.cs
 │   ├── Data/
 │   │   ├── Configurations/
 │   │   │   └── RevokedTokenConfiguration.cs

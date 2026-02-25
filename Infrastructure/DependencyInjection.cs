@@ -1,12 +1,13 @@
 namespace BackBase.Infrastructure;
 
-using BackBase.Application.Constants;
 using BackBase.Application.Interfaces;
 using BackBase.Domain.Interfaces;
 using BackBase.Infrastructure.Authentication;
+using BackBase.Infrastructure.Authorization;
 using BackBase.Infrastructure.Data;
 using BackBase.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -46,11 +47,8 @@ public static class DependencyInjection
                 options.TokenValidationParameters = jwtSettings.CreateTokenValidationParameters();
             });
 
-        services.AddAuthorizationBuilder()
-            .AddPolicy(PolicyNames.AdminAccess, policy =>
-                policy.RequireRole(AppRoles.Admin, AppRoles.SuperAdmin))
-            .AddPolicy(PolicyNames.SuperAdminAccess, policy =>
-                policy.RequireRole(AppRoles.SuperAdmin));
+        services.AddAuthorizationBuilder();
+        services.AddSingleton<IAuthorizationHandler, MinimumRoleHandler>();
 
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IIdentityService, IdentityService>();
