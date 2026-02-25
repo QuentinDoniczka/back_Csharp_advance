@@ -6,6 +6,7 @@ using BackBase.Application.Commands.Logout;
 using BackBase.Application.Commands.RefreshToken;
 using BackBase.Application.Commands.Register;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -19,6 +20,7 @@ public sealed class AuthController : ControllerBase
         _mediator = mediator;
     }
 
+    [AllowAnonymous]
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequestDto request, CancellationToken cancellationToken)
     {
@@ -27,6 +29,7 @@ public sealed class AuthController : ControllerBase
         return Ok(new RegisterResponseDto(result.UserId, result.Email));
     }
 
+    [AllowAnonymous]
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto request, CancellationToken cancellationToken)
     {
@@ -35,6 +38,7 @@ public sealed class AuthController : ControllerBase
         return Ok(new LoginResponseDto(result.AccessToken, result.RefreshToken, result.AccessTokenExpiresAt));
     }
 
+    [AllowAnonymous]
     [HttpPost("refresh-token")]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequestDto request, CancellationToken cancellationToken)
     {
@@ -43,6 +47,7 @@ public sealed class AuthController : ControllerBase
         return Ok(new RefreshTokenResponseDto(result.AccessToken, result.RefreshToken, result.AccessTokenExpiresAt));
     }
 
+    [Authorize]
     [HttpPost("logout")]
     public async Task<IActionResult> Logout([FromBody] LogoutRequestDto request, CancellationToken cancellationToken)
     {

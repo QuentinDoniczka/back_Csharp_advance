@@ -1,6 +1,7 @@
 namespace BackBase.Application.Tests.Commands.RefreshToken;
 
 using BackBase.Application.Commands.RefreshToken;
+using BackBase.Application.Constants;
 using BackBase.Application.DTOs.Output;
 using BackBase.Application.Exceptions;
 using BackBase.Application.Interfaces;
@@ -30,6 +31,7 @@ public sealed class RefreshTokenCommandHandlerTests
 
     private void SetupValidRefreshFlow(Guid userId, DateTime accessExpiry)
     {
+        IReadOnlyList<string> roles = new List<string> { AppRoles.Player }.AsReadOnly();
         var tokenInfo = new RefreshTokenInfo(userId, ValidJti, DateTime.UtcNow.AddDays(30));
         _jwtTokenService.ValidateAndExtractRefreshTokenInfo(ValidRefreshToken).Returns(tokenInfo);
 
@@ -45,8 +47,12 @@ public sealed class RefreshTokenCommandHandlerTests
             .FindByIdAsync(userId, Arg.Any<CancellationToken>())
             .Returns(new IdentityUserResult(userId, UserEmail));
 
+        _identityService
+            .GetRolesAsync(userId, Arg.Any<CancellationToken>())
+            .Returns(roles);
+
         _jwtTokenService
-            .GenerateAccessToken(userId, UserEmail)
+            .GenerateAccessToken(userId, UserEmail, Arg.Any<IReadOnlyList<string>>())
             .Returns((NewAccessToken, accessExpiry));
 
         _jwtTokenService
@@ -121,7 +127,7 @@ public sealed class RefreshTokenCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_ValidCommand_GeneratesNewAccessTokenWithCorrectUserIdAndEmail()
+    public async Task Handle_ValidCommand_GeneratesNewAccessTokenWithCorrectUserIdEmailAndRoles()
     {
         var userId = Guid.NewGuid();
         SetupValidRefreshFlow(userId, DateTime.UtcNow.AddHours(1));
@@ -131,7 +137,7 @@ public sealed class RefreshTokenCommandHandlerTests
 
         _jwtTokenService
             .Received(1)
-            .GenerateAccessToken(userId, UserEmail);
+            .GenerateAccessToken(userId, UserEmail, Arg.Any<IReadOnlyList<string>>());
     }
 
     [Fact]

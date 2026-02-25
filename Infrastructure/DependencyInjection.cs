@@ -1,6 +1,6 @@
 namespace BackBase.Infrastructure;
 
-using System.Text;
+using BackBase.Application.Constants;
 using BackBase.Application.Interfaces;
 using BackBase.Domain.Interfaces;
 using BackBase.Infrastructure.Authentication;
@@ -11,10 +11,14 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
 
 public static class DependencyInjection
 {
+    public static async Task InitializeInfrastructureAsync(this IServiceProvider serviceProvider)
+    {
+        await serviceProvider.SeedRolesAsync().ConfigureAwait(false);
+    }
+
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<AppDbContext>(options =>
@@ -29,6 +33,7 @@ public static class DependencyInjection
             options.Password.RequireNonAlphanumeric = false;
             options.User.RequireUniqueEmail = true;
         })
+        .AddRoles<IdentityRole<Guid>>()
         .AddEntityFrameworkStores<AppDbContext>()
         .AddDefaultTokenProviders();
 
@@ -38,18 +43,14 @@ public static class DependencyInjection
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = jwtSettings.Issuer,
-                    ValidAudience = jwtSettings.Audience,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret)),
-                    ClockSkew = TimeSpan.Zero
-                };
+                options.TokenValidationParameters = jwtSettings.CreateTokenValidationParameters();
             });
+
+        services.AddAuthorizationBuilder()
+            .AddPolicy(PolicyNames.AdminAccess, policy =>
+                policy.RequireRole(AppRoles.Admin, AppRoles.SuperAdmin))
+            .AddPolicy(PolicyNames.SuperAdminAccess, policy =>
+                policy.RequireRole(AppRoles.SuperAdmin));
 
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IIdentityService, IdentityService>();

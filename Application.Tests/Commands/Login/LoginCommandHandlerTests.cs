@@ -1,6 +1,7 @@
 namespace BackBase.Application.Tests.Commands.Login;
 
 using BackBase.Application.Commands.Login;
+using BackBase.Application.Constants;
 using BackBase.Application.DTOs.Output;
 using BackBase.Application.Exceptions;
 using BackBase.Application.Interfaces;
@@ -27,12 +28,18 @@ public sealed class LoginCommandHandlerTests
 
     private void SetupValidLoginFlow(Guid userId, string email, DateTime accessExpiry)
     {
+        IReadOnlyList<string> roles = new List<string> { AppRoles.Player }.AsReadOnly();
+
         _identityService
             .ValidateCredentialsAsync(email, Arg.Any<string>(), Arg.Any<CancellationToken>())
             .Returns(new IdentityUserResult(userId, email));
 
+        _identityService
+            .GetRolesAsync(userId, Arg.Any<CancellationToken>())
+            .Returns(roles);
+
         _jwtTokenService
-            .GenerateAccessToken(userId, email)
+            .GenerateAccessToken(userId, email, Arg.Any<IReadOnlyList<string>>())
             .Returns((GeneratedAccessToken, accessExpiry));
 
         _jwtTokenService
@@ -93,7 +100,7 @@ public sealed class LoginCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_ValidCommand_CallsGenerateAccessTokenWithUserIdAndEmail()
+    public async Task Handle_ValidCommand_CallsGenerateAccessTokenWithUserIdEmailAndRoles()
     {
         var command = new LoginCommand(ValidEmail, ValidPassword);
         var userId = Guid.NewGuid();
@@ -103,7 +110,7 @@ public sealed class LoginCommandHandlerTests
 
         _jwtTokenService
             .Received(1)
-            .GenerateAccessToken(userId, ValidEmail);
+            .GenerateAccessToken(userId, ValidEmail, Arg.Any<IReadOnlyList<string>>());
     }
 
     [Fact]
@@ -147,7 +154,7 @@ public sealed class LoginCommandHandlerTests
 
         _jwtTokenService
             .DidNotReceive()
-            .GenerateAccessToken(Arg.Any<Guid>(), Arg.Any<string>());
+            .GenerateAccessToken(Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<IReadOnlyList<string>>());
         _jwtTokenService
             .DidNotReceive()
             .GenerateRefreshToken(Arg.Any<Guid>(), Arg.Any<string>());
@@ -160,13 +167,18 @@ public sealed class LoginCommandHandlerTests
         using var cts = new CancellationTokenSource();
         var token = cts.Token;
         var userId = Guid.NewGuid();
+        IReadOnlyList<string> roles = new List<string> { AppRoles.Player }.AsReadOnly();
 
         _identityService
             .ValidateCredentialsAsync(ValidEmail, ValidPassword, token)
             .Returns(new IdentityUserResult(userId, ValidEmail));
 
+        _identityService
+            .GetRolesAsync(userId, Arg.Any<CancellationToken>())
+            .Returns(roles);
+
         _jwtTokenService
-            .GenerateAccessToken(userId, ValidEmail)
+            .GenerateAccessToken(userId, ValidEmail, Arg.Any<IReadOnlyList<string>>())
             .Returns(("token", DateTime.UtcNow));
 
         _jwtTokenService

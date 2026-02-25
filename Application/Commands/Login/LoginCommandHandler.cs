@@ -20,8 +20,9 @@ public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, AuthToke
     public async Task<AuthTokenResult> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
         var user = await _identityService.ValidateCredentialsAsync(request.Email, request.Password, cancellationToken).ConfigureAwait(false);
+        var roles = await _identityService.GetRolesAsync(user.UserId, cancellationToken).ConfigureAwait(false);
 
-        var (accessToken, accessExpiresAt) = _jwtTokenService.GenerateAccessToken(user.UserId, user.Email);
+        var (accessToken, accessExpiresAt) = _jwtTokenService.GenerateAccessToken(user.UserId, user.Email, roles);
         var (refreshToken, _) = _jwtTokenService.GenerateRefreshToken(user.UserId, user.Email);
 
         return new AuthTokenResult(accessToken, refreshToken, accessExpiresAt);

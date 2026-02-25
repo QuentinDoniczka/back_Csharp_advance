@@ -57,4 +57,25 @@ public sealed class IdentityService : IIdentityService
         if (user is null) return false;
         return user.BannedUntil.HasValue && user.BannedUntil.Value > DateTime.UtcNow;
     }
+
+    public async Task<IReadOnlyList<string>> GetRolesAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString()).ConfigureAwait(false);
+        if (user is null)
+            throw new AuthenticationException("User not found");
+
+        var roles = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
+        return roles.ToList().AsReadOnly();
+    }
+
+    public async Task AssignRoleAsync(Guid userId, string role, CancellationToken cancellationToken = default)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString()).ConfigureAwait(false);
+        if (user is null)
+            throw new AuthenticationException("User not found");
+
+        var result = await _userManager.AddToRoleAsync(user, role).ConfigureAwait(false);
+        if (!result.Succeeded)
+            throw new AuthenticationException(string.Join(", ", result.Errors.Select(e => e.Description)));
+    }
 }

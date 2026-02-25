@@ -1,6 +1,7 @@
 namespace BackBase.Application.Tests.Commands.Register;
 
 using BackBase.Application.Commands.Register;
+using BackBase.Application.Constants;
 using BackBase.Application.DTOs.Output;
 using BackBase.Application.Interfaces;
 using NSubstitute;
@@ -90,6 +91,26 @@ public sealed class RegisterCommandHandlerTests
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(
             () => _handler.Handle(command, CancellationToken.None));
         Assert.Equal("User already exists", exception.Message);
+    }
+
+    [Fact]
+    public async Task Handle_ValidCommand_AssignsPlayerRoleToNewUser()
+    {
+        // Arrange
+        var command = new RegisterCommand(ValidEmail, ValidPassword);
+        var userId = Guid.NewGuid();
+
+        _identityService
+            .RegisterAsync(ValidEmail, ValidPassword, Arg.Any<CancellationToken>())
+            .Returns(new IdentityUserResult(userId, ValidEmail));
+
+        // Act
+        await _handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        await _identityService
+            .Received(1)
+            .AssignRoleAsync(userId, AppRoles.Player, Arg.Any<CancellationToken>());
     }
 
     [Fact]

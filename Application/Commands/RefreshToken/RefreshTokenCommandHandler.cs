@@ -38,7 +38,9 @@ public sealed class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCom
         if (user is null)
             throw new AuthenticationException("Invalid refresh token");
 
-        var (accessToken, accessExpiresAt) = _jwtTokenService.GenerateAccessToken(tokenInfo.UserId, user.Email);
+        var roles = await _identityService.GetRolesAsync(tokenInfo.UserId, cancellationToken).ConfigureAwait(false);
+
+        var (accessToken, accessExpiresAt) = _jwtTokenService.GenerateAccessToken(tokenInfo.UserId, user.Email, roles);
         var (refreshToken, _) = _jwtTokenService.GenerateRefreshToken(tokenInfo.UserId, user.Email);
 
         return new AuthTokenResult(accessToken, refreshToken, accessExpiresAt);

@@ -1,5 +1,6 @@
 namespace BackBase.Infrastructure.Authentication;
 
+using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -20,10 +21,11 @@ public sealed class JwtTokenService : IJwtTokenService
         _jwtSettings = jwtSettings.Value;
     }
 
-    public (string Token, DateTime ExpiresAt) GenerateAccessToken(Guid userId, string email)
+    public (string Token, DateTime ExpiresAt) GenerateAccessToken(Guid userId, string email, IReadOnlyList<string> roles)
     {
         var expiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes);
-        return GenerateToken(userId, email, expiresAt);
+        var roleClaims = roles.Select(role => new Claim(ClaimTypes.Role, role));
+        return GenerateToken(userId, email, expiresAt, roleClaims);
     }
 
     public (string Token, DateTime ExpiresAt) GenerateRefreshToken(Guid userId, string email)
@@ -34,17 +36,7 @@ public sealed class JwtTokenService : IJwtTokenService
 
     public RefreshTokenInfo? ValidateAndExtractRefreshTokenInfo(string refreshToken)
     {
-        var tokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = _jwtSettings.Issuer,
-            ValidAudience = _jwtSettings.Audience,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret)),
-            ClockSkew = TimeSpan.Zero
-        };
+        var tokenValidationParameters = _jwtSettings.CreateTokenValidationParameters();
 
         try
         {
@@ -71,7 +63,7 @@ public sealed class JwtTokenService : IJwtTokenService
                 return null;
             }
 
-            var expiresAt = DateTimeOffset.FromUnixTimeSeconds(long.Parse(expClaim)).UtcDateTime;
+            var expiresAt = DateTimeOffset.FromUnixTimeSeconds(long.Parse(expClaim, CultureInfo.InvariantCulture)).UtcDateTime;
             return new RefreshTokenInfo(userId, jtiClaim, expiresAt);
         }
         catch (SecurityTokenException)
