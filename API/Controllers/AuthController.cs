@@ -47,7 +47,6 @@ public sealed class AuthController : ControllerBase
         return Ok(new RefreshTokenResponseDto(result.AccessToken, result.RefreshToken, result.AccessTokenExpiresAt));
     }
 
-    [Authorize]
     [HttpPost("logout")]
     public async Task<IActionResult> Logout([FromBody] LogoutRequestDto request, CancellationToken cancellationToken)
     {

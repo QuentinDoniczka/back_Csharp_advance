@@ -1,109 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<coverage line-rate="0.0678" branch-rate="0.013999999999999999" version="1.9" timestamp="1772035468" lines-covered="60" lines-valid="884" branches-covered="4" branches-valid="284">
+<coverage line-rate="0.0759" branch-rate="0.0141" version="1.9" timestamp="1772052341" lines-covered="60" lines-valid="790" branches-covered="4" branches-valid="282">
   <sources>
     <source>C:\Users\donic\RiderProjects\back_Csharp_advance\</source>
   </sources>
   <packages>
-    <package name="API" line-rate="0.0969" branch-rate="0.019" complexity="240">
+    <package name="API" line-rate="0.1054" branch-rate="0.0192" complexity="238">
       <classes>
-        <class name="Program/&lt;&lt;Main&gt;$&gt;d__0" filename="API\Program.cs" line-rate="0" branch-rate="0" complexity="2">
-          <methods>
-            <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="2">
-              <lines>
-                <line number="8" hits="0" branch="False" />
-                <line number="10" hits="0" branch="False" />
-                <line number="11" hits="0" branch="False" />
-                <line number="12" hits="0" branch="False" />
-                <line number="13" hits="0" branch="False" />
-                <line number="14" hits="0" branch="False" />
-                <line number="15" hits="0" branch="False" />
-                <line number="16" hits="0" branch="False" />
-                <line number="17" hits="0" branch="False" />
-                <line number="18" hits="0" branch="False" />
-                <line number="19" hits="0" branch="False" />
-                <line number="20" hits="0" branch="False" />
-                <line number="21" hits="0" branch="False" />
-                <line number="22" hits="0" branch="False" />
-                <line number="23" hits="0" branch="False" />
-                <line number="24" hits="0" branch="False" />
-                <line number="25" hits="0" branch="False" />
-                <line number="26" hits="0" branch="False" />
-                <line number="27" hits="0" branch="False" />
-                <line number="28" hits="0" branch="False" />
-                <line number="29" hits="0" branch="False" />
-                <line number="30" hits="0" branch="False" />
-                <line number="31" hits="0" branch="False" />
-                <line number="33" hits="0" branch="False" />
-                <line number="34" hits="0" branch="False" />
-                <line number="35" hits="0" branch="False" />
-                <line number="37" hits="0" branch="False" />
-                <line number="39" hits="0" branch="False" />
-                <line number="41" hits="0" branch="False" />
-                <line number="43" hits="0" branch="False" />
-                <line number="45" hits="0" branch="True" condition-coverage="0% (0/2)">
-                  <conditions>
-                    <condition number="422" type="jump" coverage="0%" />
-                  </conditions>
-                </line>
-                <line number="46" hits="0" branch="False" />
-                <line number="47" hits="0" branch="False" />
-                <line number="48" hits="0" branch="False" />
-                <line number="49" hits="0" branch="False" />
-                <line number="51" hits="0" branch="False" />
-                <line number="52" hits="0" branch="False" />
-                <line number="53" hits="0" branch="False" />
-                <line number="54" hits="0" branch="False" />
-                <line number="56" hits="0" branch="False" />
-              </lines>
-            </method>
-          </methods>
-          <lines>
-            <line number="8" hits="0" branch="False" />
-            <line number="10" hits="0" branch="False" />
-            <line number="11" hits="0" branch="False" />
-            <line number="12" hits="0" branch="False" />
-            <line number="13" hits="0" branch="False" />
-            <line number="14" hits="0" branch="False" />
-            <line number="15" hits="0" branch="False" />
-            <line number="16" hits="0" branch="False" />
-            <line number="17" hits="0" branch="False" />
-            <line number="18" hits="0" branch="False" />
-            <line number="19" hits="0" branch="False" />
-            <line number="20" hits="0" branch="False" />
-            <line number="21" hits="0" branch="False" />
-            <line number="22" hits="0" branch="False" />
-            <line number="23" hits="0" branch="False" />
-            <line number="24" hits="0" branch="False" />
-            <line number="25" hits="0" branch="False" />
-            <line number="26" hits="0" branch="False" />
-            <line number="27" hits="0" branch="False" />
-            <line number="28" hits="0" branch="False" />
-            <line number="29" hits="0" branch="False" />
-            <line number="30" hits="0" branch="False" />
-            <line number="31" hits="0" branch="False" />
-            <line number="33" hits="0" branch="False" />
-            <line number="34" hits="0" branch="False" />
-            <line number="35" hits="0" branch="False" />
-            <line number="37" hits="0" branch="False" />
-            <line number="39" hits="0" branch="False" />
-            <line number="41" hits="0" branch="False" />
-            <line number="43" hits="0" branch="False" />
-            <line number="45" hits="0" branch="True" condition-coverage="0% (0/2)">
-              <conditions>
-                <condition number="422" type="jump" coverage="0%" />
-              </conditions>
-            </line>
-            <line number="46" hits="0" branch="False" />
-            <line number="47" hits="0" branch="False" />
-            <line number="48" hits="0" branch="False" />
-            <line number="49" hits="0" branch="False" />
-            <line number="51" hits="0" branch="False" />
-            <line number="52" hits="0" branch="False" />
-            <line number="53" hits="0" branch="False" />
-            <line number="54" hits="0" branch="False" />
-            <line number="56" hits="0" branch="False" />
-          </lines>
-        </class>
         <class name="Microsoft.AspNetCore.OpenApi.Generated.&lt;OpenApiXmlCommentSupport_generated&gt;F0B46CEBBCC0368D1405CBEA3E95BF8C4253FB2D8D796F1D98A0DC4269150CFE5__XmlComment" filename="API\obj\Debug\net10.0\Microsoft.AspNetCore.OpenApi.SourceGenerators\Microsoft.AspNetCore.OpenApi.SourceGenerators.XmlCommentGenerator\OpenApiXmlCommentSupport.generated.cs" line-rate="0" branch-rate="1" complexity="10">
           <methods>
             <method name="get_Summary" signature="()" line-rate="0" branch-rate="1" complexity="1">
@@ -1982,20 +1884,20 @@
           <methods>
             <method name="MoveNext" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
+                <line number="52" hits="0" branch="False" />
                 <line number="53" hits="0" branch="False" />
                 <line number="54" hits="0" branch="False" />
                 <line number="55" hits="0" branch="False" />
                 <line number="56" hits="0" branch="False" />
-                <line number="57" hits="0" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
+            <line number="52" hits="0" branch="False" />
             <line number="53" hits="0" branch="False" />
             <line number="54" hits="0" branch="False" />
             <line number="55" hits="0" branch="False" />
             <line number="56" hits="0" branch="False" />
-            <line number="57" hits="0" branch="False" />
           </lines>
         </class>
         <class name="BackBase.API.Controllers.AuthController/&lt;RefreshToken&gt;d__4" filename="API\Controllers\AuthController.cs" line-rate="0" branch-rate="1" complexity="1">
@@ -2828,92 +2730,8 @@
         </class>
       </classes>
     </package>
-    <package name="Infrastructure" line-rate="0" branch-rate="0" complexity="75">
+    <package name="Infrastructure" line-rate="0" branch-rate="0" complexity="69">
       <classes>
-        <class name="BackBase.Infrastructure.DependencyInjection" filename="Infrastructure\DependencyInjection.cs" line-rate="0" branch-rate="1" complexity="1">
-          <methods>
-            <method name="AddInfrastructure" signature="(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration)" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
-                <line number="24" hits="0" branch="False" />
-                <line number="25" hits="0" branch="False" />
-                <line number="26" hits="0" branch="False" />
-                <line number="28" hits="0" branch="False" />
-                <line number="29" hits="0" branch="False" />
-                <line number="30" hits="0" branch="False" />
-                <line number="31" hits="0" branch="False" />
-                <line number="32" hits="0" branch="False" />
-                <line number="33" hits="0" branch="False" />
-                <line number="34" hits="0" branch="False" />
-                <line number="35" hits="0" branch="False" />
-                <line number="36" hits="0" branch="False" />
-                <line number="37" hits="0" branch="False" />
-                <line number="38" hits="0" branch="False" />
-                <line number="39" hits="0" branch="False" />
-                <line number="41" hits="0" branch="False" />
-                <line number="42" hits="0" branch="False" />
-                <line number="44" hits="0" branch="False" />
-                <line number="45" hits="0" branch="False" />
-                <line number="46" hits="0" branch="False" />
-                <line number="47" hits="0" branch="False" />
-                <line number="48" hits="0" branch="False" />
-                <line number="50" hits="0" branch="False" />
-                <line number="51" hits="0" branch="False" />
-                <line number="53" hits="0" branch="False" />
-                <line number="54" hits="0" branch="False" />
-                <line number="55" hits="0" branch="False" />
-                <line number="57" hits="0" branch="False" />
-                <line number="58" hits="0" branch="False" />
-              </lines>
-            </method>
-          </methods>
-          <lines>
-            <line number="24" hits="0" branch="False" />
-            <line number="25" hits="0" branch="False" />
-            <line number="26" hits="0" branch="False" />
-            <line number="28" hits="0" branch="False" />
-            <line number="29" hits="0" branch="False" />
-            <line number="30" hits="0" branch="False" />
-            <line number="31" hits="0" branch="False" />
-            <line number="32" hits="0" branch="False" />
-            <line number="33" hits="0" branch="False" />
-            <line number="34" hits="0" branch="False" />
-            <line number="35" hits="0" branch="False" />
-            <line number="36" hits="0" branch="False" />
-            <line number="37" hits="0" branch="False" />
-            <line number="38" hits="0" branch="False" />
-            <line number="39" hits="0" branch="False" />
-            <line number="41" hits="0" branch="False" />
-            <line number="42" hits="0" branch="False" />
-            <line number="44" hits="0" branch="False" />
-            <line number="45" hits="0" branch="False" />
-            <line number="46" hits="0" branch="False" />
-            <line number="47" hits="0" branch="False" />
-            <line number="48" hits="0" branch="False" />
-            <line number="50" hits="0" branch="False" />
-            <line number="51" hits="0" branch="False" />
-            <line number="53" hits="0" branch="False" />
-            <line number="54" hits="0" branch="False" />
-            <line number="55" hits="0" branch="False" />
-            <line number="57" hits="0" branch="False" />
-            <line number="58" hits="0" branch="False" />
-          </lines>
-        </class>
-        <class name="BackBase.Infrastructure.DependencyInjection/&lt;InitializeInfrastructureAsync&gt;d__0" filename="Infrastructure\DependencyInjection.cs" line-rate="0" branch-rate="1" complexity="1">
-          <methods>
-            <method name="MoveNext" signature="()" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
-                <line number="19" hits="0" branch="False" />
-                <line number="20" hits="0" branch="False" />
-                <line number="21" hits="0" branch="False" />
-              </lines>
-            </method>
-          </methods>
-          <lines>
-            <line number="19" hits="0" branch="False" />
-            <line number="20" hits="0" branch="False" />
-            <line number="21" hits="0" branch="False" />
-          </lines>
-        </class>
         <class name="BackBase.Infrastructure.Repositories.RevokedTokenRepository" filename="Infrastructure\Repositories\RevokedTokenRepository.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name=".ctor" signature="(BackBase.Infrastructure.Data.AppDbContext)" line-rate="0" branch-rate="1" complexity="1">
@@ -2996,78 +2814,6 @@
             <line number="29" hits="0" branch="False" />
             <line number="30" hits="0" branch="False" />
             <line number="31" hits="0" branch="False" />
-          </lines>
-        </class>
-        <class name="BackBase.Infrastructure.Data.AppDbContext" filename="Infrastructure\Data\AppDbContext.cs" line-rate="0" branch-rate="1" complexity="3">
-          <methods>
-            <method name="get_RevokedTokens" signature="()" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
-                <line number="11" hits="0" branch="False" />
-              </lines>
-            </method>
-            <method name="OnModelCreating" signature="(Microsoft.EntityFrameworkCore.ModelBuilder)" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
-                <line number="16" hits="0" branch="False" />
-                <line number="17" hits="0" branch="False" />
-                <line number="18" hits="0" branch="False" />
-                <line number="19" hits="0" branch="False" />
-              </lines>
-            </method>
-            <method name=".ctor" signature="(Microsoft.EntityFrameworkCore.DbContextOptions`1&lt;BackBase.Infrastructure.Data.AppDbContext&gt;)" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
-                <line number="13" hits="0" branch="False" />
-              </lines>
-            </method>
-          </methods>
-          <lines>
-            <line number="11" hits="0" branch="False" />
-            <line number="16" hits="0" branch="False" />
-            <line number="17" hits="0" branch="False" />
-            <line number="18" hits="0" branch="False" />
-            <line number="19" hits="0" branch="False" />
-            <line number="13" hits="0" branch="False" />
-          </lines>
-        </class>
-        <class name="BackBase.Infrastructure.Data.Configurations.RevokedTokenConfiguration" filename="Infrastructure\Data\Configurations\RevokedTokenConfiguration.cs" line-rate="0" branch-rate="1" complexity="1">
-          <methods>
-            <method name="Configure" signature="(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder`1&lt;BackBase.Domain.Entities.RevokedToken&gt;)" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
-                <line number="10" hits="0" branch="False" />
-                <line number="11" hits="0" branch="False" />
-                <line number="13" hits="0" branch="False" />
-                <line number="15" hits="0" branch="False" />
-                <line number="16" hits="0" branch="False" />
-                <line number="17" hits="0" branch="False" />
-                <line number="19" hits="0" branch="False" />
-                <line number="20" hits="0" branch="False" />
-                <line number="22" hits="0" branch="False" />
-                <line number="23" hits="0" branch="False" />
-                <line number="25" hits="0" branch="False" />
-                <line number="26" hits="0" branch="False" />
-                <line number="28" hits="0" branch="False" />
-                <line number="29" hits="0" branch="False" />
-                <line number="31" hits="0" branch="False" />
-                <line number="32" hits="0" branch="False" />
-              </lines>
-            </method>
-          </methods>
-          <lines>
-            <line number="10" hits="0" branch="False" />
-            <line number="11" hits="0" branch="False" />
-            <line number="13" hits="0" branch="False" />
-            <line number="15" hits="0" branch="False" />
-            <line number="16" hits="0" branch="False" />
-            <line number="17" hits="0" branch="False" />
-            <line number="19" hits="0" branch="False" />
-            <line number="20" hits="0" branch="False" />
-            <line number="22" hits="0" branch="False" />
-            <line number="23" hits="0" branch="False" />
-            <line number="25" hits="0" branch="False" />
-            <line number="26" hits="0" branch="False" />
-            <line number="28" hits="0" branch="False" />
-            <line number="29" hits="0" branch="False" />
-            <line number="31" hits="0" branch="False" />
-            <line number="32" hits="0" branch="False" />
           </lines>
         </class>
         <class name="BackBase.Infrastructure.Authorization.MinimumRoleHandler" filename="Infrastructure\Authorization\MinimumRoleHandler.cs" line-rate="0" branch-rate="0" complexity="6">

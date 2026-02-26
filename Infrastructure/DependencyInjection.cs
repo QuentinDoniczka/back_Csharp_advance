@@ -47,7 +47,10 @@ public static class DependencyInjection
                 options.TokenValidationParameters = jwtSettings.CreateTokenValidationParameters();
             });
 
-        services.AddAuthorizationBuilder();
+        services.AddAuthorizationBuilder()
+            .SetFallbackPolicy(new AuthorizationPolicyBuilder()
+                .RequireAuthenticatedUser()
+                .Build());
         services.AddSingleton<IAuthorizationHandler, MinimumRoleHandler>();
 
         services.AddScoped<IJwtTokenService, JwtTokenService>();

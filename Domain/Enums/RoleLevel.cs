@@ -1,4 +1,4 @@
-namespace BackBase.Application.Constants;
+namespace BackBase.Domain.Enums;
 
 public enum RoleLevel
 {

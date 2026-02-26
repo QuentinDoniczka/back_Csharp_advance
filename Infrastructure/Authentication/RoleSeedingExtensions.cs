@@ -1,6 +1,6 @@
 namespace BackBase.Infrastructure.Authentication;
 
-using BackBase.Application.Constants;
+using BackBase.Domain.Constants;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 

@@ -1,7 +1,7 @@
 namespace BackBase.Application.Tests.Commands.Register;
 
 using BackBase.Application.Commands.Register;
-using BackBase.Application.Constants;
+using BackBase.Domain.Constants;
 using BackBase.Application.DTOs.Output;
 using BackBase.Application.Interfaces;
 using NSubstitute;

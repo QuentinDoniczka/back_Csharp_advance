@@ -1,8 +1,5 @@
-using BackBase.Application.Behaviors;
-using BackBase.Infrastructure;
+using BackBase.Application;
 using BackBase.API.Middleware;
-using FluentValidation;
-using MediatR;
 using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,15 +27,11 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(ValidationBehavior<,>).Assembly));
-builder.Services.AddValidatorsFromAssembly(typeof(ValidationBehavior<,>).Assembly);
-builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-
-builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddApplication(builder.Configuration);
 
 var app = builder.Build();
 
-await app.Services.InitializeInfrastructureAsync();
+await app.Services.InitializeApplicationAsync();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
@@ -51,6 +44,6 @@ if (app.Environment.IsDevelopment())
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-app.MapGet("/health", () => Results.Ok("healthy"));
+app.MapGet("/health", () => Results.Ok("healthy")).AllowAnonymous();
 
 app.Run();

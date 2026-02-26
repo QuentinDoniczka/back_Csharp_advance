@@ -1,7 +1,7 @@
 namespace BackBase.Application.Tests.Commands.RefreshToken;
 
 using BackBase.Application.Commands.RefreshToken;
-using BackBase.Application.Constants;
+using BackBase.Domain.Constants;
 using BackBase.Application.DTOs.Output;
 using BackBase.Application.Exceptions;
 using BackBase.Application.Interfaces;

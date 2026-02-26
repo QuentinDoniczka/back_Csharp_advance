@@ -3145,8 +3145,6 @@
     "net10.0": [
       "Application >= 1.0.0",
       "Infrastructure >= 1.0.0",
-      "MediatR >= 14.0.0",
-      "Microsoft.AspNetCore.Authentication.JwtBearer >= 10.0.3",
       "Microsoft.AspNetCore.OpenApi >= 10.0.0",
       "Microsoft.EntityFrameworkCore.Design >= 10.0.3",
       "Swashbuckle.AspNetCore >= 10.0.1"
@@ -3209,14 +3207,6 @@
       "net10.0": {
         "targetAlias": "net10.0",
         "dependencies": {
-          "MediatR": {
-            "target": "Package",
-            "version": "[14.0.0, )"
-          },
-          "Microsoft.AspNetCore.Authentication.JwtBearer": {
-            "target": "Package",
-            "version": "[10.0.3, )"
-          },
           "Microsoft.AspNetCore.OpenApi": {
             "target": "Package",
             "version": "[10.0.0, )"

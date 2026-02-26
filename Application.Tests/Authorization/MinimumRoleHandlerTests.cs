@@ -1,8 +1,8 @@
 namespace BackBase.Application.Tests.Authorization;
 
 using System.Security.Claims;
-using BackBase.Application.Authorization;
-using BackBase.Application.Constants;
+using BackBase.Domain.Constants;
+using BackBase.Domain.Enums;
 using BackBase.Infrastructure.Authorization;
 using Microsoft.AspNetCore.Authorization;
 

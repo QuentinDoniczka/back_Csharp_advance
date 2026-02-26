@@ -1,4 +1,6 @@
-namespace BackBase.Application.Constants;
+using BackBase.Domain.Enums;
+
+namespace BackBase.Domain.Constants;
 
 public static class AppRoles
 {

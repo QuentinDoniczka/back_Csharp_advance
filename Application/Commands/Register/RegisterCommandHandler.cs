@@ -1,6 +1,6 @@
 namespace BackBase.Application.Commands.Register;
 
-using BackBase.Application.Constants;
+using BackBase.Domain.Constants;
 using BackBase.Application.Interfaces;
 using MediatR;
 

@@ -1,4 +1,4 @@
-using BackBase.Application.Constants;
+using BackBase.Domain.Enums;
 
 namespace BackBase.Application.Authorization;
 

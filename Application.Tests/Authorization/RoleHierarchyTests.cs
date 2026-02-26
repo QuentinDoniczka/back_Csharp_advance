@@ -1,7 +1,8 @@
 namespace BackBase.Application.Tests.Authorization;
 
 using BackBase.Application.Authorization;
-using BackBase.Application.Constants;
+using BackBase.Domain.Constants;
+using BackBase.Domain.Enums;
 
 public sealed class RoleHierarchyTests
 {

@@ -52,15 +52,7 @@ Communication : francais avec l'utilisateur, anglais avec les agents.
    - **Si les tests echouent a cause d'un bug dans le code source** → delegue a `dev-backend` pour corriger, puis re-delegue a `test-backend` pour re-verifier. **Max 2 allers-retours dev↔test.** Si ca ne passe toujours pas apres 2 tentatives, rapporte le probleme a l'utilisateur.
    - **Si les tests echouent a cause d'un bug dans le test** → `test-backend` corrige lui-meme et re-run.
    **Ne jamais sauter cette etape.**
-8. **Docker** — **TOUJOURS apres les tests.** Delegue a `docker-backend` pour :
-   - Verifier/mettre a jour le `Dockerfile` (multi-stage build)
-   - Verifier/mettre a jour le `compose.yaml` (services, volumes, healthchecks)
-   - S'assurer que le `.env` est utilise pour les credentials (jamais de secrets en dur dans compose.yaml)
-   - Verifier que le `.env` est dans le `.gitignore`
-   - Builder et lancer les containers (`docker compose up --build -d`)
-   - Verifier que les containers sont healthy
-   **Ne jamais sauter cette etape.**
-9. **Rapport** — Resume **obligatoire**, max 15 lignes, en francais. Doit contenir :
+8. **Rapport** — Resume **obligatoire**, max 15 lignes, en francais. Doit contenir :
 
    ```
    ## Rapport
@@ -80,6 +72,15 @@ Communication : francais avec l'utilisateur, anglais avec les agents.
 
    Si une section est vide (ex: aucun fichier supprime), ne pas l'afficher.
    **Ne PAS commiter** — l'utilisateur testera d'abord et commitera lui-meme quand il sera satisfait.
+
+## Agents hors chaine (manuels)
+
+Ces agents ne sont **jamais** lances automatiquement dans le workflow. L'utilisateur les demande explicitement quand il en a besoin.
+
+| Agent | Quand l'invoquer |
+|-------|-----------------|
+| `docker-backend` | Sur demande explicite de l'utilisateur pour builder/verifier les containers Docker |
+| `review-backend` | Sur demande explicite pour un audit complet du projet entier |
 
 ## Regles
 

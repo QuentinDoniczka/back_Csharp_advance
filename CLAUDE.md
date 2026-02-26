@@ -80,9 +80,6 @@ back_Csharp_advance/
 │   └── appsettings.Development.json
 ├── Application/
 │   ├── Authorization/
-│   │   ├── MinimumRoleAttribute.cs
-│   │   ├── MinimumRoleHandler.cs
-│   │   ├── MinimumRoleRequirement.cs
 │   │   └── RoleHierarchy.cs
 │   ├── Behaviors/
 │   │   └── ValidationBehavior.cs
@@ -104,8 +101,6 @@ back_Csharp_advance/
 │   │       ├── RegisterCommandHandler.cs
 │   │       ├── RegisterCommandValidator.cs
 │   │       └── RegisterResult.cs
-│   ├── Constants/
-│   │   └── RoleLevel.cs
 │   ├── DTOs/
 │   │   └── Output/
 │   │       ├── AuthTokenResult.cs
@@ -114,12 +109,17 @@ back_Csharp_advance/
 │   ├── Exceptions/
 │   │   ├── AuthenticationException.cs
 │   │   └── ValidationException.cs
-│   └── Interfaces/
-│       ├── IIdentityService.cs
-│       └── IJwtTokenService.cs
+│   ├── Interfaces/
+│   │   ├── IIdentityService.cs
+│   │   └── IJwtTokenService.cs
+│   └── DependencyInjection.cs
 ├── Domain/
+│   ├── Constants/
+│   │   └── AppRoles.cs
 │   ├── Entities/
 │   │   └── RevokedToken.cs
+│   ├── Enums/
+│   │   └── RoleLevel.cs
 │   └── Interfaces/
 │       └── IRevokedTokenRepository.cs
 ├── Infrastructure/
@@ -127,9 +127,12 @@ back_Csharp_advance/
 │   │   ├── ApplicationUser.cs
 │   │   ├── IdentityService.cs
 │   │   ├── JwtSettings.cs
-│   │   └── JwtTokenService.cs
+│   │   ├── JwtTokenService.cs
+│   │   └── RoleSeedingExtensions.cs
 │   ├── Authorization/
-│   │   └── MinimumRoleHandler.cs
+│   │   ├── MinimumRoleAttribute.cs
+│   │   ├── MinimumRoleHandler.cs
+│   │   └── MinimumRoleRequirement.cs
 │   ├── Data/
 │   │   ├── Configurations/
 │   │   │   └── RevokedTokenConfiguration.cs
@@ -142,10 +145,16 @@ back_Csharp_advance/
 │   └── Middleware/
 │       └── ExceptionHandlingMiddlewareTests.cs
 ├── Application.Tests/
+│   ├── Authorization/
+│   │   ├── MinimumRoleHandlerTests.cs
+│   │   └── RoleHierarchyTests.cs
 │   └── Commands/
 │       ├── Login/
 │       │   ├── LoginCommandHandlerTests.cs
 │       │   └── LoginCommandValidatorTests.cs
+│       ├── Logout/
+│       │   ├── LogoutCommandHandlerTests.cs
+│       │   └── LogoutCommandValidatorTests.cs
 │       ├── RefreshToken/
 │       │   ├── RefreshTokenCommandHandlerTests.cs
 │       │   └── RefreshTokenCommandValidatorTests.cs

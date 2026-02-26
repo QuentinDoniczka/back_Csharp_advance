@@ -9,8 +9,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="MediatR" Version="14.0.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.3" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.3">
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -21,6 +19,9 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Application\Application.csproj" />
+      <!-- Runtime-only dependency: API must NOT use Infrastructure types directly.
+           All DI registration flows through Application.DependencyInjection which
+           loads Infrastructure via reflection at startup. -->
       <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
     </ItemGroup>
 
