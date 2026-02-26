@@ -16,7 +16,7 @@ public sealed class RegisterCommandHandler : IRequestHandler<RegisterCommand, Re
     public async Task<RegisterResult> Handle(RegisterCommand request, CancellationToken cancellationToken)
     {
         var user = await _identityService.RegisterAsync(request.Email, request.Password, cancellationToken).ConfigureAwait(false);
-        await _identityService.AssignRoleAsync(user.UserId, AppRoles.Player, cancellationToken).ConfigureAwait(false);
+        await _identityService.AssignRoleAsync(user.UserId, AppRoles.Member, cancellationToken).ConfigureAwait(false);
         return new RegisterResult(user.UserId, user.Email);
     }
 }

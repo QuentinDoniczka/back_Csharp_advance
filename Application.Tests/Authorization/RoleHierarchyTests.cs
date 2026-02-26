@@ -7,17 +7,17 @@ using BackBase.Domain.Enums;
 public sealed class RoleHierarchyTests
 {
     [Fact]
-    public void TryGetLevel_Player_ReturnsPlayerLevel()
+    public void TryGetLevel_Member_ReturnsMemberLevel()
     {
         // Arrange
-        var roleName = AppRoles.Player;
+        var roleName = AppRoles.Member;
 
         // Act
         var found = RoleHierarchy.TryGetLevel(roleName, out var level);
 
         // Assert
         Assert.True(found);
-        Assert.Equal(RoleLevel.Player, level);
+        Assert.Equal(RoleLevel.Member, level);
     }
 
     [Fact]

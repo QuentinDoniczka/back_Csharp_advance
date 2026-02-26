@@ -53,11 +53,11 @@ public sealed class MinimumRoleHandlerTests
     }
 
     [Fact]
-    public async Task HandleRequirement_UserWithPlayer_FailsAdminRequirement()
+    public async Task HandleRequirement_UserWithMember_FailsAdminRequirement()
     {
         // Arrange
         var requirement = new MinimumRoleRequirement(RoleLevel.Admin);
-        var context = CreateContext(requirement, AppRoles.Player);
+        var context = CreateContext(requirement, AppRoles.Member);
 
         // Act
         await _handler.HandleAsync(context);
@@ -70,7 +70,7 @@ public sealed class MinimumRoleHandlerTests
     public async Task HandleRequirement_UserWithNoRoles_FailsAnyRequirement()
     {
         // Arrange
-        var requirement = new MinimumRoleRequirement(RoleLevel.Player);
+        var requirement = new MinimumRoleRequirement(RoleLevel.Member);
         var context = CreateContext(requirement);
 
         // Act
@@ -85,7 +85,7 @@ public sealed class MinimumRoleHandlerTests
     {
         // Arrange
         var requirement = new MinimumRoleRequirement(RoleLevel.Admin);
-        var context = CreateContext(requirement, AppRoles.Player, AppRoles.Admin);
+        var context = CreateContext(requirement, AppRoles.Member, AppRoles.Admin);
 
         // Act
         await _handler.HandleAsync(context);

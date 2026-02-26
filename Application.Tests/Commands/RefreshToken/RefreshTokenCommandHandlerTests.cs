@@ -31,7 +31,7 @@ public sealed class RefreshTokenCommandHandlerTests
 
     private void SetupValidRefreshFlow(Guid userId, DateTime accessExpiry)
     {
-        IReadOnlyList<string> roles = new List<string> { AppRoles.Player }.AsReadOnly();
+        IReadOnlyList<string> roles = new List<string> { AppRoles.Member }.AsReadOnly();
         var tokenInfo = new RefreshTokenInfo(userId, ValidJti, DateTime.UtcNow.AddDays(30));
         _jwtTokenService.ValidateAndExtractRefreshTokenInfo(ValidRefreshToken).Returns(tokenInfo);
 

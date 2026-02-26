@@ -94,7 +94,7 @@ public sealed class RegisterCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_ValidCommand_AssignsPlayerRoleToNewUser()
+    public async Task Handle_ValidCommand_AssignsMemberRoleToNewUser()
     {
         // Arrange
         var command = new RegisterCommand(ValidEmail, ValidPassword);
@@ -110,7 +110,7 @@ public sealed class RegisterCommandHandlerTests
         // Assert
         await _identityService
             .Received(1)
-            .AssignRoleAsync(userId, AppRoles.Player, Arg.Any<CancellationToken>());
+            .AssignRoleAsync(userId, AppRoles.Member, Arg.Any<CancellationToken>());
     }
 
     [Fact]

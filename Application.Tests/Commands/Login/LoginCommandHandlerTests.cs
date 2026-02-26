@@ -28,7 +28,7 @@ public sealed class LoginCommandHandlerTests
 
     private void SetupValidLoginFlow(Guid userId, string email, DateTime accessExpiry)
     {
-        IReadOnlyList<string> roles = new List<string> { AppRoles.Player }.AsReadOnly();
+        IReadOnlyList<string> roles = new List<string> { AppRoles.Member }.AsReadOnly();
 
         _identityService
             .ValidateCredentialsAsync(email, Arg.Any<string>(), Arg.Any<CancellationToken>())
@@ -167,7 +167,7 @@ public sealed class LoginCommandHandlerTests
         using var cts = new CancellationTokenSource();
         var token = cts.Token;
         var userId = Guid.NewGuid();
-        IReadOnlyList<string> roles = new List<string> { AppRoles.Player }.AsReadOnly();
+        IReadOnlyList<string> roles = new List<string> { AppRoles.Member }.AsReadOnly();
 
         _identityService
             .ValidateCredentialsAsync(ValidEmail, ValidPassword, token)
