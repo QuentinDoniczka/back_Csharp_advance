@@ -57,6 +57,9 @@ public static class DependencyInjection
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<IRevokedTokenRepository, RevokedTokenRepository>();
 
+        services.Configure<GoogleAuthSettings>(configuration.GetSection(GoogleAuthSettings.SectionName));
+        services.AddScoped<IGoogleTokenValidator, GoogleTokenValidator>();
+
         return services;
     }
 }

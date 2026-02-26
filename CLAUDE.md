@@ -66,6 +66,7 @@ back_Csharp_advance/
 │   ├── Controllers/
 │   │   └── AuthController.cs
 │   ├── DTOs/
+│   │   ├── GoogleLoginRequestDto.cs
 │   │   ├── LoginRequestDto.cs
 │   │   ├── LoginResponseDto.cs
 │   │   ├── LogoutRequestDto.cs
@@ -84,6 +85,10 @@ back_Csharp_advance/
 │   ├── Behaviors/
 │   │   └── ValidationBehavior.cs
 │   ├── Commands/
+│   │   ├── GoogleLogin/
+│   │   │   ├── GoogleLoginCommand.cs
+│   │   │   ├── GoogleLoginCommandHandler.cs
+│   │   │   └── GoogleLoginCommandValidator.cs
 │   │   ├── Login/
 │   │   │   ├── LoginCommand.cs
 │   │   │   ├── LoginCommandHandler.cs
@@ -104,18 +109,21 @@ back_Csharp_advance/
 │   ├── DTOs/
 │   │   └── Output/
 │   │       ├── AuthTokenResult.cs
+│   │       ├── GoogleUserInfo.cs
 │   │       ├── IdentityUserResult.cs
 │   │       └── RefreshTokenInfo.cs
 │   ├── Exceptions/
 │   │   ├── AuthenticationException.cs
 │   │   └── ValidationException.cs
 │   ├── Interfaces/
+│   │   ├── IGoogleTokenValidator.cs
 │   │   ├── IIdentityService.cs
 │   │   └── IJwtTokenService.cs
 │   └── DependencyInjection.cs
 ├── Domain/
 │   ├── Constants/
-│   │   └── AppRoles.cs
+│   │   ├── AppRoles.cs
+│   │   └── ExternalProviders.cs
 │   ├── Entities/
 │   │   └── RevokedToken.cs
 │   ├── Enums/
@@ -125,6 +133,8 @@ back_Csharp_advance/
 ├── Infrastructure/
 │   ├── Authentication/
 │   │   ├── ApplicationUser.cs
+│   │   ├── GoogleAuthSettings.cs
+│   │   ├── GoogleTokenValidator.cs
 │   │   ├── IdentityService.cs
 │   │   ├── JwtSettings.cs
 │   │   ├── JwtTokenService.cs
@@ -137,7 +147,7 @@ back_Csharp_advance/
 │   │   ├── Configurations/
 │   │   │   └── RevokedTokenConfiguration.cs
 │   │   └── AppDbContext.cs
-│   ├── Migrations/ (3 files)
+│   ├── Migrations/ (5 files)
 │   ├── Repositories/
 │   │   └── RevokedTokenRepository.cs
 │   └── DependencyInjection.cs
@@ -149,6 +159,9 @@ back_Csharp_advance/
 │   │   ├── MinimumRoleHandlerTests.cs
 │   │   └── RoleHierarchyTests.cs
 │   └── Commands/
+│       ├── GoogleLogin/
+│       │   ├── GoogleLoginCommandHandlerTests.cs
+│       │   └── GoogleLoginCommandValidatorTests.cs
 │       ├── Login/
 │       │   ├── LoginCommandHandlerTests.cs
 │       │   └── LoginCommandValidatorTests.cs

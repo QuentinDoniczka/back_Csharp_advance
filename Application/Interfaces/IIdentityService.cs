@@ -10,4 +10,9 @@ public interface IIdentityService
     Task<bool> IsBannedAsync(Guid userId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<string>> GetRolesAsync(Guid userId, CancellationToken cancellationToken = default);
     Task AssignRoleAsync(Guid userId, string role, CancellationToken cancellationToken = default);
+    Task<IdentityUserResult> FindOrCreateExternalUserAsync(
+        string email,
+        string providerName,
+        string providerUserId,
+        CancellationToken cancellationToken = default);
 }

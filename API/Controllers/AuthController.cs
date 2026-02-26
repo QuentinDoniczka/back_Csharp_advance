@@ -1,6 +1,7 @@
 namespace BackBase.API.Controllers;
 
 using BackBase.API.DTOs;
+using BackBase.Application.Commands.GoogleLogin;
 using BackBase.Application.Commands.Login;
 using BackBase.Application.Commands.Logout;
 using BackBase.Application.Commands.RefreshToken;
@@ -34,6 +35,15 @@ public sealed class AuthController : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginRequestDto request, CancellationToken cancellationToken)
     {
         var command = new LoginCommand(request.Email, request.Password);
+        var result = await _mediator.Send(command, cancellationToken);
+        return Ok(new LoginResponseDto(result.AccessToken, result.RefreshToken, result.AccessTokenExpiresAt));
+    }
+
+    [AllowAnonymous]
+    [HttpPost("google")]
+    public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginRequestDto request, CancellationToken cancellationToken)
+    {
+        var command = new GoogleLoginCommand(request.IdToken);
         var result = await _mediator.Send(command, cancellationToken);
         return Ok(new LoginResponseDto(result.AccessToken, result.RefreshToken, result.AccessTokenExpiresAt));
     }

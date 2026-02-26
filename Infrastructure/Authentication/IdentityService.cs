@@ -78,4 +78,48 @@ public sealed class IdentityService : IIdentityService
         if (!result.Succeeded)
             throw new AuthenticationException(string.Join(", ", result.Errors.Select(e => e.Description)));
     }
+
+    public async Task<IdentityUserResult> FindOrCreateExternalUserAsync(
+        string email,
+        string providerName,
+        string providerUserId,
+        CancellationToken cancellationToken = default)
+    {
+        var user = await _userManager.FindByEmailAsync(email).ConfigureAwait(false);
+
+        if (user is null)
+        {
+            user = new ApplicationUser { UserName = email, Email = email, EmailConfirmed = true };
+            var createResult = await _userManager.CreateAsync(user).ConfigureAwait(false);
+
+            if (!createResult.Succeeded)
+            {
+                var errors = string.Join(", ", createResult.Errors.Select(e => e.Description));
+                throw new AuthenticationException(errors);
+            }
+        }
+        else if (!user.EmailConfirmed)
+        {
+            // Auto-linking is safe: the external provider (Google) has already verified email ownership
+            // via the EmailVerified check in GoogleTokenValidator. Mark the existing account as confirmed.
+            user.EmailConfirmed = true;
+            await _userManager.UpdateAsync(user).ConfigureAwait(false);
+        }
+
+        var logins = await _userManager.GetLoginsAsync(user).ConfigureAwait(false);
+        var isLinked = logins.Any(l => l.LoginProvider == providerName);
+
+        if (!isLinked)
+        {
+            var loginResult = await _userManager.AddLoginAsync(user, new UserLoginInfo(providerName, providerUserId, providerName)).ConfigureAwait(false);
+
+            if (!loginResult.Succeeded)
+            {
+                var errors = string.Join(", ", loginResult.Errors.Select(e => e.Description));
+                throw new AuthenticationException(errors);
+            }
+        }
+
+        return new IdentityUserResult(user.Id, user.Email!);
+    }
 }
