@@ -207,7 +207,7 @@ public sealed class RefreshTokenCommandHandlerTests
         var exception = await Assert.ThrowsAsync<AuthenticationException>(
             () => _handler.Handle(command, CancellationToken.None));
 
-        Assert.Equal("User account is suspended", exception.Message);
+        Assert.Equal("User account is banned", exception.Message);
     }
 
     [Fact]

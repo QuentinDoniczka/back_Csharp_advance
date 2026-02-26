@@ -1,5 +1,6 @@
 namespace BackBase.Application.Commands.Logout;
 
+using BackBase.Application.Constants;
 using BackBase.Application.Exceptions;
 using BackBase.Application.Interfaces;
 using BackBase.Domain.Entities;
@@ -23,7 +24,7 @@ public sealed class LogoutCommandHandler : IRequestHandler<LogoutCommand>
     {
         var tokenInfo = _jwtTokenService.ValidateAndExtractRefreshTokenInfo(request.RefreshToken);
         if (tokenInfo is null)
-            throw new AuthenticationException("Invalid refresh token");
+            throw new AuthenticationException(AuthErrorMessages.InvalidRefreshToken);
 
         if (await _revokedTokenRepository.IsRevokedAsync(tokenInfo.Jti, cancellationToken).ConfigureAwait(false))
             return;

@@ -1,11 +1,13 @@
 namespace BackBase.API.Controllers;
 
+using System.Security.Claims;
 using BackBase.API.DTOs;
 using BackBase.Application.Commands.GoogleLogin;
 using BackBase.Application.Commands.Login;
 using BackBase.Application.Commands.Logout;
 using BackBase.Application.Commands.RefreshToken;
 using BackBase.Application.Commands.Register;
+using BackBase.Application.Commands.SetPassword;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -45,7 +47,8 @@ public sealed class AuthController : ControllerBase
     {
         var command = new GoogleLoginCommand(request.IdToken);
         var result = await _mediator.Send(command, cancellationToken);
-        return Ok(new LoginResponseDto(result.AccessToken, result.RefreshToken, result.AccessTokenExpiresAt));
+        var loginResponse = new LoginResponseDto(result.Tokens.AccessToken, result.Tokens.RefreshToken, result.Tokens.AccessTokenExpiresAt);
+        return Ok(new GoogleLoginResponseDto(loginResponse, result.IsNewAccount));
     }
 
     [AllowAnonymous]
@@ -61,6 +64,19 @@ public sealed class AuthController : ControllerBase
     public async Task<IActionResult> Logout([FromBody] LogoutRequestDto request, CancellationToken cancellationToken)
     {
         var command = new LogoutCommand(request.RefreshToken);
+        await _mediator.Send(command, cancellationToken);
+        return NoContent();
+    }
+
+    [Authorize]
+    [HttpPost("set-password")]
+    public async Task<IActionResult> SetPassword([FromBody] SetPasswordRequestDto request, CancellationToken cancellationToken)
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim is null || !Guid.TryParse(userIdClaim, out var userId))
+            return Unauthorized();
+
+        var command = new SetPasswordCommand(userId, request.Password);
         await _mediator.Send(command, cancellationToken);
         return NoContent();
     }

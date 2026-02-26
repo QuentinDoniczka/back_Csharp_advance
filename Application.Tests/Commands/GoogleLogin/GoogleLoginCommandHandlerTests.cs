@@ -30,7 +30,7 @@ public sealed class GoogleLoginCommandHandlerTests
         _handler = new GoogleLoginCommandHandler(_googleTokenValidator, _identityService, _jwtTokenService);
     }
 
-    private void SetupValidGoogleLoginFlow(Guid userId, DateTime accessExpiry, IReadOnlyList<string>? roles = null)
+    private void SetupValidGoogleLoginFlow(Guid userId, DateTime accessExpiry, IReadOnlyList<string>? roles = null, bool isNewAccount = false)
     {
         roles ??= new List<string> { AppRoles.Member }.AsReadOnly();
 
@@ -40,7 +40,7 @@ public sealed class GoogleLoginCommandHandlerTests
 
         _identityService
             .FindOrCreateExternalUserAsync(GoogleEmail, ExternalProviders.Google, GoogleUserId, Arg.Any<CancellationToken>())
-            .Returns(new IdentityUserResult(userId, GoogleEmail));
+            .Returns(new ExternalLoginResult(userId, GoogleEmail, isNewAccount));
 
         _identityService
             .IsBannedAsync(userId, Arg.Any<CancellationToken>())
@@ -69,7 +69,7 @@ public sealed class GoogleLoginCommandHandlerTests
 
         var result = await _handler.Handle(command, CancellationToken.None);
 
-        Assert.Equal(GeneratedAccessToken, result.AccessToken);
+        Assert.Equal(GeneratedAccessToken, result.Tokens.AccessToken);
     }
 
     [Fact]
@@ -81,7 +81,7 @@ public sealed class GoogleLoginCommandHandlerTests
 
         var result = await _handler.Handle(command, CancellationToken.None);
 
-        Assert.Equal(GeneratedRefreshToken, result.RefreshToken);
+        Assert.Equal(GeneratedRefreshToken, result.Tokens.RefreshToken);
     }
 
     [Fact]
@@ -94,7 +94,7 @@ public sealed class GoogleLoginCommandHandlerTests
 
         var result = await _handler.Handle(command, CancellationToken.None);
 
-        Assert.Equal(accessExpiry, result.AccessTokenExpiresAt);
+        Assert.Equal(accessExpiry, result.Tokens.AccessTokenExpiresAt);
     }
 
     [Fact]
@@ -216,6 +216,32 @@ public sealed class GoogleLoginCommandHandlerTests
     }
 
     [Fact]
+    public async Task Handle_NewAccount_ReturnsIsNewAccountTrue()
+    {
+        var userId = Guid.NewGuid();
+        var accessExpiry = DateTime.UtcNow.AddHours(1);
+        SetupValidGoogleLoginFlow(userId, accessExpiry, isNewAccount: true);
+        var command = new GoogleLoginCommand(ValidIdToken);
+
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        Assert.True(result.IsNewAccount);
+    }
+
+    [Fact]
+    public async Task Handle_ExistingAccount_ReturnsIsNewAccountFalse()
+    {
+        var userId = Guid.NewGuid();
+        var accessExpiry = DateTime.UtcNow.AddHours(1);
+        SetupValidGoogleLoginFlow(userId, accessExpiry, isNewAccount: false);
+        var command = new GoogleLoginCommand(ValidIdToken);
+
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        Assert.False(result.IsNewAccount);
+    }
+
+    [Fact]
     public async Task Handle_InvalidGoogleToken_ThrowsAuthenticationException()
     {
         _googleTokenValidator
@@ -256,7 +282,7 @@ public sealed class GoogleLoginCommandHandlerTests
 
         _identityService
             .FindOrCreateExternalUserAsync(GoogleEmail, ExternalProviders.Google, GoogleUserId, Arg.Any<CancellationToken>())
-            .Returns(new IdentityUserResult(userId, GoogleEmail));
+            .Returns(new ExternalLoginResult(userId, GoogleEmail, false));
 
         _identityService
             .IsBannedAsync(userId, Arg.Any<CancellationToken>())
@@ -281,7 +307,7 @@ public sealed class GoogleLoginCommandHandlerTests
 
         _identityService
             .FindOrCreateExternalUserAsync(GoogleEmail, ExternalProviders.Google, GoogleUserId, Arg.Any<CancellationToken>())
-            .Returns(new IdentityUserResult(userId, GoogleEmail));
+            .Returns(new ExternalLoginResult(userId, GoogleEmail, false));
 
         _identityService
             .IsBannedAsync(userId, Arg.Any<CancellationToken>())

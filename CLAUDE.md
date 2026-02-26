@@ -67,13 +67,15 @@ back_Csharp_advance/
 │   │   └── AuthController.cs
 │   ├── DTOs/
 │   │   ├── GoogleLoginRequestDto.cs
+│   │   ├── GoogleLoginResponseDto.cs
 │   │   ├── LoginRequestDto.cs
 │   │   ├── LoginResponseDto.cs
 │   │   ├── LogoutRequestDto.cs
 │   │   ├── RefreshTokenRequestDto.cs
 │   │   ├── RefreshTokenResponseDto.cs
 │   │   ├── RegisterRequestDto.cs
-│   │   └── RegisterResponseDto.cs
+│   │   ├── RegisterResponseDto.cs
+│   │   └── SetPasswordRequestDto.cs
 │   ├── Middleware/
 │   │   └── ExceptionHandlingMiddleware.cs
 │   ├── Program.cs
@@ -101,14 +103,22 @@ back_Csharp_advance/
 │   │   │   ├── RefreshTokenCommand.cs
 │   │   │   ├── RefreshTokenCommandHandler.cs
 │   │   │   └── RefreshTokenCommandValidator.cs
-│   │   └── Register/
-│   │       ├── RegisterCommand.cs
-│   │       ├── RegisterCommandHandler.cs
-│   │       ├── RegisterCommandValidator.cs
-│   │       └── RegisterResult.cs
+│   │   ├── Register/
+│   │   │   ├── RegisterCommand.cs
+│   │   │   ├── RegisterCommandHandler.cs
+│   │   │   ├── RegisterCommandValidator.cs
+│   │   │   └── RegisterResult.cs
+│   │   └── SetPassword/
+│   │       ├── SetPasswordCommand.cs
+│   │       ├── SetPasswordCommandHandler.cs
+│   │       └── SetPasswordCommandValidator.cs
+│   ├── Constants/
+│   │   └── AuthErrorMessages.cs
 │   ├── DTOs/
 │   │   └── Output/
 │   │       ├── AuthTokenResult.cs
+│   │       ├── ExternalLoginResult.cs
+│   │       ├── GoogleLoginResult.cs
 │   │       ├── GoogleUserInfo.cs
 │   │       ├── IdentityUserResult.cs
 │   │       └── RefreshTokenInfo.cs
@@ -119,6 +129,8 @@ back_Csharp_advance/
 │   │   ├── IGoogleTokenValidator.cs
 │   │   ├── IIdentityService.cs
 │   │   └── IJwtTokenService.cs
+│   ├── Validators/
+│   │   └── PasswordRules.cs
 │   └── DependencyInjection.cs
 ├── Domain/
 │   ├── Constants/
@@ -171,9 +183,12 @@ back_Csharp_advance/
 │       ├── RefreshToken/
 │       │   ├── RefreshTokenCommandHandlerTests.cs
 │       │   └── RefreshTokenCommandValidatorTests.cs
-│       └── Register/
-│           ├── RegisterCommandHandlerTests.cs
-│           └── RegisterCommandValidatorTests.cs
+│       ├── Register/
+│       │   ├── RegisterCommandHandlerTests.cs
+│       │   └── RegisterCommandValidatorTests.cs
+│       └── SetPassword/
+│           ├── SetPasswordCommandHandlerTests.cs
+│           └── SetPasswordCommandValidatorTests.cs
 ├── Domain.Tests/
 │   └── Entities/
 │       └── RevokedTokenTests.cs

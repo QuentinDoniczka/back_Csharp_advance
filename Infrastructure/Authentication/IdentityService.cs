@@ -1,5 +1,6 @@
 namespace BackBase.Infrastructure.Authentication;
 
+using BackBase.Application.Constants;
 using BackBase.Application.DTOs.Output;
 using BackBase.Application.Exceptions;
 using BackBase.Application.Interfaces;
@@ -19,11 +20,7 @@ public sealed class IdentityService : IIdentityService
         var user = new ApplicationUser { UserName = email, Email = email };
         var result = await _userManager.CreateAsync(user, password).ConfigureAwait(false);
 
-        if (!result.Succeeded)
-        {
-            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-            throw new AuthenticationException(errors);
-        }
+        ThrowIfFailed(result);
 
         return new IdentityUserResult(user.Id, user.Email!);
     }
@@ -32,37 +29,35 @@ public sealed class IdentityService : IIdentityService
     {
         var user = await _userManager.FindByEmailAsync(email).ConfigureAwait(false);
         if (user is null)
-        {
-            throw new AuthenticationException("Invalid credentials");
-        }
+            throw new AuthenticationException(AuthErrorMessages.InvalidCredentials);
+
+        var hasPassword = await _userManager.HasPasswordAsync(user).ConfigureAwait(false);
+        if (!hasPassword)
+            throw new AuthenticationException(AuthErrorMessages.ExternalLoginPasswordRequired);
 
         var isValid = await _userManager.CheckPasswordAsync(user, password).ConfigureAwait(false);
         if (!isValid)
-        {
-            throw new AuthenticationException("Invalid credentials");
-        }
+            throw new AuthenticationException(AuthErrorMessages.InvalidCredentials);
 
         return new IdentityUserResult(user.Id, user.Email!);
     }
 
     public async Task<IdentityUserResult?> FindByIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        var user = await _userManager.FindByIdAsync(userId.ToString()).ConfigureAwait(false);
+        var user = await FindUserByIdAsync(userId).ConfigureAwait(false);
         return user is null ? null : new IdentityUserResult(user.Id, user.Email!);
     }
 
     public async Task<bool> IsBannedAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        var user = await _userManager.FindByIdAsync(userId.ToString()).ConfigureAwait(false);
+        var user = await FindUserByIdAsync(userId).ConfigureAwait(false);
         if (user is null) return false;
         return user.BannedUntil.HasValue && user.BannedUntil.Value > DateTime.UtcNow;
     }
 
     public async Task<IReadOnlyList<string>> GetRolesAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        var user = await _userManager.FindByIdAsync(userId.ToString()).ConfigureAwait(false);
-        if (user is null)
-            throw new AuthenticationException("User not found");
+        var user = await FindUserByIdOrThrowAsync(userId).ConfigureAwait(false);
 
         var roles = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
         return roles.ToList().AsReadOnly();
@@ -70,33 +65,28 @@ public sealed class IdentityService : IIdentityService
 
     public async Task AssignRoleAsync(Guid userId, string role, CancellationToken cancellationToken = default)
     {
-        var user = await _userManager.FindByIdAsync(userId.ToString()).ConfigureAwait(false);
-        if (user is null)
-            throw new AuthenticationException("User not found");
+        var user = await FindUserByIdOrThrowAsync(userId).ConfigureAwait(false);
 
         var result = await _userManager.AddToRoleAsync(user, role).ConfigureAwait(false);
-        if (!result.Succeeded)
-            throw new AuthenticationException(string.Join(", ", result.Errors.Select(e => e.Description)));
+        ThrowIfFailed(result);
     }
 
-    public async Task<IdentityUserResult> FindOrCreateExternalUserAsync(
+    public async Task<ExternalLoginResult> FindOrCreateExternalUserAsync(
         string email,
         string providerName,
         string providerUserId,
         CancellationToken cancellationToken = default)
     {
+        var isNewAccount = false;
         var user = await _userManager.FindByEmailAsync(email).ConfigureAwait(false);
 
         if (user is null)
         {
+            isNewAccount = true;
             user = new ApplicationUser { UserName = email, Email = email, EmailConfirmed = true };
             var createResult = await _userManager.CreateAsync(user).ConfigureAwait(false);
 
-            if (!createResult.Succeeded)
-            {
-                var errors = string.Join(", ", createResult.Errors.Select(e => e.Description));
-                throw new AuthenticationException(errors);
-            }
+            ThrowIfFailed(createResult);
         }
         else if (!user.EmailConfirmed)
         {
@@ -113,13 +103,51 @@ public sealed class IdentityService : IIdentityService
         {
             var loginResult = await _userManager.AddLoginAsync(user, new UserLoginInfo(providerName, providerUserId, providerName)).ConfigureAwait(false);
 
-            if (!loginResult.Succeeded)
-            {
-                var errors = string.Join(", ", loginResult.Errors.Select(e => e.Description));
-                throw new AuthenticationException(errors);
-            }
+            ThrowIfFailed(loginResult);
         }
 
-        return new IdentityUserResult(user.Id, user.Email!);
+        return new ExternalLoginResult(user.Id, user.Email!, isNewAccount);
+    }
+
+    public async Task<bool> HasPasswordAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        var user = await FindUserByIdOrThrowAsync(userId).ConfigureAwait(false);
+
+        return await _userManager.HasPasswordAsync(user).ConfigureAwait(false);
+    }
+
+    public async Task SetPasswordAsync(Guid userId, string password, CancellationToken cancellationToken = default)
+    {
+        var user = await FindUserByIdOrThrowAsync(userId).ConfigureAwait(false);
+
+        var hasPassword = await _userManager.HasPasswordAsync(user).ConfigureAwait(false);
+        if (hasPassword)
+            throw new AuthenticationException(AuthErrorMessages.UserAlreadyHasPassword);
+
+        var result = await _userManager.AddPasswordAsync(user, password).ConfigureAwait(false);
+        ThrowIfFailed(result);
+    }
+
+    private async Task<ApplicationUser?> FindUserByIdAsync(Guid userId)
+    {
+        return await _userManager.FindByIdAsync(userId.ToString()).ConfigureAwait(false);
+    }
+
+    private async Task<ApplicationUser> FindUserByIdOrThrowAsync(Guid userId)
+    {
+        var user = await FindUserByIdAsync(userId).ConfigureAwait(false);
+        if (user is null)
+            throw new AuthenticationException(AuthErrorMessages.UserNotFound);
+
+        return user;
+    }
+
+    private static void ThrowIfFailed(IdentityResult result)
+    {
+        if (!result.Succeeded)
+        {
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            throw new AuthenticationException(errors);
+        }
     }
 }

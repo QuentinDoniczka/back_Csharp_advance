@@ -1,5 +1,6 @@
 namespace BackBase.Application.Commands.RefreshToken;
 
+using BackBase.Application.Constants;
 using BackBase.Application.DTOs.Output;
 using BackBase.Application.Exceptions;
 using BackBase.Application.Interfaces;
@@ -26,17 +27,17 @@ public sealed class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCom
     {
         var tokenInfo = _jwtTokenService.ValidateAndExtractRefreshTokenInfo(request.RefreshToken);
         if (tokenInfo is null)
-            throw new AuthenticationException("Invalid refresh token");
+            throw new AuthenticationException(AuthErrorMessages.InvalidRefreshToken);
 
         if (await _revokedTokenRepository.IsRevokedAsync(tokenInfo.Jti, cancellationToken).ConfigureAwait(false))
-            throw new AuthenticationException("Refresh token has been revoked");
+            throw new AuthenticationException(AuthErrorMessages.RefreshTokenRevoked);
 
         if (await _identityService.IsBannedAsync(tokenInfo.UserId, cancellationToken).ConfigureAwait(false))
-            throw new AuthenticationException("User account is suspended");
+            throw new AuthenticationException(AuthErrorMessages.UserAccountBanned);
 
         var user = await _identityService.FindByIdAsync(tokenInfo.UserId, cancellationToken).ConfigureAwait(false);
         if (user is null)
-            throw new AuthenticationException("Invalid refresh token");
+            throw new AuthenticationException(AuthErrorMessages.InvalidRefreshToken);
 
         var roles = await _identityService.GetRolesAsync(tokenInfo.UserId, cancellationToken).ConfigureAwait(false);
 

@@ -1,12 +1,13 @@
 namespace BackBase.Application.Commands.GoogleLogin;
 
+using BackBase.Application.Constants;
 using BackBase.Application.DTOs.Output;
 using BackBase.Application.Exceptions;
 using BackBase.Application.Interfaces;
 using BackBase.Domain.Constants;
 using MediatR;
 
-public sealed class GoogleLoginCommandHandler : IRequestHandler<GoogleLoginCommand, AuthTokenResult>
+public sealed class GoogleLoginCommandHandler : IRequestHandler<GoogleLoginCommand, GoogleLoginResult>
 {
     private readonly IGoogleTokenValidator _googleTokenValidator;
     private readonly IIdentityService _identityService;
@@ -22,7 +23,7 @@ public sealed class GoogleLoginCommandHandler : IRequestHandler<GoogleLoginComma
         _jwtTokenService = jwtTokenService;
     }
 
-    public async Task<AuthTokenResult> Handle(GoogleLoginCommand request, CancellationToken cancellationToken)
+    public async Task<GoogleLoginResult> Handle(GoogleLoginCommand request, CancellationToken cancellationToken)
     {
         var googleUser = await _googleTokenValidator.ValidateAsync(request.IdToken, cancellationToken).ConfigureAwait(false);
 
@@ -30,7 +31,7 @@ public sealed class GoogleLoginCommandHandler : IRequestHandler<GoogleLoginComma
             googleUser.Email, ExternalProviders.Google, googleUser.GoogleUserId, cancellationToken).ConfigureAwait(false);
 
         if (await _identityService.IsBannedAsync(user.UserId, cancellationToken).ConfigureAwait(false))
-            throw new AuthenticationException("User account is banned");
+            throw new AuthenticationException(AuthErrorMessages.UserAccountBanned);
 
         var roles = await _identityService.GetRolesAsync(user.UserId, cancellationToken).ConfigureAwait(false);
 
@@ -43,6 +44,7 @@ public sealed class GoogleLoginCommandHandler : IRequestHandler<GoogleLoginComma
         var (accessToken, accessExpiresAt) = _jwtTokenService.GenerateAccessToken(user.UserId, user.Email, roles);
         var (refreshToken, _) = _jwtTokenService.GenerateRefreshToken(user.UserId, user.Email);
 
-        return new AuthTokenResult(accessToken, refreshToken, accessExpiresAt);
+        var tokens = new AuthTokenResult(accessToken, refreshToken, accessExpiresAt);
+        return new GoogleLoginResult(tokens, user.IsNewAccount);
     }
 }
