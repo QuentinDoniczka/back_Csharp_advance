@@ -19,9 +19,8 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Application\Application.csproj" />
-      <!-- Runtime-only dependency: API must NOT use Infrastructure types directly.
-           All DI registration flows through Application.DependencyInjection which
-           loads Infrastructure via reflection at startup. -->
+      <!-- DI registration flows through Application.DependencyInjection via reflection.
+           API references Infrastructure only for endpoint mapping (MapInfrastructureEndpoints). -->
       <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
     </ItemGroup>
 

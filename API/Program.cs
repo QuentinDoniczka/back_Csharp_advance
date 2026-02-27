@@ -1,5 +1,6 @@
 using BackBase.Application;
 using BackBase.API.Middleware;
+using BackBase.Infrastructure;
 using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,6 +30,17 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddApplication(builder.Configuration);
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins(builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? [])
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
 var app = builder.Build();
 
 await app.Services.InitializeApplicationAsync();
@@ -41,9 +53,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapInfrastructureEndpoints();
 app.MapGet("/health", () => Results.Ok("healthy")).AllowAnonymous();
 
 app.Run();

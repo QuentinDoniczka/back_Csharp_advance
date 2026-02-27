@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<coverage line-rate="1" branch-rate="1" version="1.9" timestamp="1772052340" lines-covered="16" lines-valid="16" branches-covered="2" branches-valid="2">
+<coverage line-rate="0.8887999999999999" branch-rate="1" version="1.9" timestamp="1772198844" lines-covered="16" lines-valid="18" branches-covered="2" branches-valid="2">
   <sources>
-    <source>C:\</source>
+    <source>C:\Users\donic\RiderProjects\back_Csharp_advance\Domain\</source>
   </sources>
   <packages>
-    <package name="Domain" line-rate="1" branch-rate="1" complexity="8">
+    <package name="Domain" line-rate="0.8887999999999999" branch-rate="1" complexity="9">
       <classes>
-        <class name="BackBase.Domain.Entities.RevokedToken" filename="Users\donic\RiderProjects\back_Csharp_advance\Domain\Entities\RevokedToken.cs" line-rate="1" branch-rate="1" complexity="8">
+        <class name="BackBase.Domain.Entities.RevokedToken" filename="Entities\RevokedToken.cs" line-rate="1" branch-rate="1" complexity="8">
           <methods>
             <method name="get_Id" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -78,6 +78,20 @@
             <line number="22" hits="8" branch="False" />
             <line number="23" hits="8" branch="False" />
             <line number="11" hits="24" branch="False" />
+          </lines>
+        </class>
+        <class name="BackBase.Domain.Constants.AppRoles" filename="Constants\AppRoles.cs" line-rate="0" branch-rate="1" complexity="1">
+          <methods>
+            <method name=".cctor" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="11" hits="0" branch="False" />
+                <line number="12" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="11" hits="0" branch="False" />
+            <line number="12" hits="0" branch="False" />
           </lines>
         </class>
       </classes>
