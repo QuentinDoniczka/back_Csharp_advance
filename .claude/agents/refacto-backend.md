@@ -53,6 +53,8 @@ If a file is in the wrong layer → **move it and fix namespaces BEFORE any othe
 
 - **Domain referencing Infrastructure or Application** — Domain must have zero external dependencies
 - **Infrastructure packages leaking into Application** — Application must NOT reference JWT libs (`System.IdentityModel.Tokens.Jwt`), Identity libs, EF Core, or any infrastructure-specific package. If Application handlers parse JWT claims directly (`JwtRegisteredClaimNames`, `ClaimsPrincipal` from tokens), extract the parsing into a service interface method that returns a typed DTO instead.
+- **Application loading Infrastructure via reflection** — Application must NEVER use `Assembly.Load("Infrastructure")` or any reflection-based mechanism to discover/invoke Infrastructure code. DI orchestration belongs in the Composition Root (`Program.cs`), not in Application. If you see `Assembly.Load`, `Type.GetMethod`, or `method.Invoke` targeting Infrastructure → **delete it** and ensure Program.cs calls `AddApplication()` + `AddInfrastructure()` separately.
+- **Composition Root violations** — The ONLY place allowed to reference both Application and Infrastructure is `Program.cs` (the Composition Root). Controllers, Middleware, and all other API code must ONLY use Application types. If a controller or middleware has `using BackBase.Infrastructure.*` → move the logic behind an Application interface.
 - **Business logic in Controllers** — must be in Application handlers or Domain services
 - **Validation in API layer** — must be FluentValidation in Application layer
 - **Blocking calls** — `.Result`, `.Wait()`, `.GetAwaiter().GetResult()` → replace with `await`

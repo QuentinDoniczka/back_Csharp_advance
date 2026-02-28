@@ -28,7 +28,8 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-builder.Services.AddApplication(builder.Configuration);
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.AddCors(options =>
 {
@@ -43,7 +44,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-await app.Services.InitializeApplicationAsync();
+await app.Services.InitializeInfrastructureAsync();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
@@ -61,3 +62,5 @@ app.MapInfrastructureEndpoints();
 app.MapGet("/health", () => Results.Ok("healthy")).AllowAnonymous();
 
 app.Run();
+
+public partial class Program;

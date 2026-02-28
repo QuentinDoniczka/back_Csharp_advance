@@ -19,8 +19,8 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Application\Application.csproj" />
-      <!-- DI registration flows through Application.DependencyInjection via reflection.
-           API references Infrastructure only for endpoint mapping (MapInfrastructureEndpoints). -->
+      <!-- API is the Composition Root: it explicitly calls AddApplication() and AddInfrastructure().
+           Also references Infrastructure for endpoint mapping (MapInfrastructureEndpoints). -->
       <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
     </ItemGroup>
 
