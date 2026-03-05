@@ -7,5 +7,8 @@ public static class ChatConstants
     public static readonly string MessageTooLong = $"Message must not exceed {MaxMessageLength} characters.";
     public const string MessageEmpty = "Message must not be empty.";
     public const string ReceiveMessageMethod = "ReceiveMessage";
+    public const string JoinGlobalChatMethod = "JoinGlobalChat";
+    public const string LeaveGlobalChatMethod = "LeaveGlobalChat";
+    public const string SendMessageMethod = "SendMessage";
     public const string HubPath = "/chat";
 }
