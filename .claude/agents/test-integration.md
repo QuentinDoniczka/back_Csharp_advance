@@ -73,7 +73,7 @@ You are a senior .NET integration test specialist. You write integration tests t
 
 ### 6. SignalR Testing (GameHub)
 
-The GameHub uses parameterized salons (groups) and personal notifications:
+The GameHub uses typed channels (SignalR groups with prefixes) and personal notifications:
 
 ```csharp
 // Reuse base class helpers — DO NOT recreate register/login
@@ -81,22 +81,28 @@ var (accessToken, email) = await RegisterAndLoginAsync();
 var connection = CreateHubConnection(accessToken);
 await connection.StartAsync();
 
-// Join a salon (group)
-await connection.InvokeAsync(ChatConstants.JoinSalonMethod, "General");
+// Join a channel (group) — uses ChannelType enum + channelId
+await connection.InvokeAsync(ChannelConstants.JoinChannelMethod, ChannelType.Global, "General");
 
 // Listen for messages
 var tcs = new TaskCompletionSource<ChatMessageOutput>();
 connection.On<ChatMessageOutput>(ChatConstants.ReceiveMessageMethod, msg => tcs.SetResult(msg));
 
-// Send to a salon
-await connection.InvokeAsync(ChatConstants.SendMessageMethod, "General", "Hello");
+// Send to a channel
+await connection.InvokeAsync(ChatConstants.SendMessageMethod, ChannelType.Global, "General", "Hello");
 var received = await tcs.Task.WaitAsync(TimeSpan.FromSeconds(5));
+
+// Leave a channel (stay connected to hub)
+await connection.InvokeAsync(ChannelConstants.LeaveChannelMethod, ChannelType.Global, "General");
 
 // Personal notifications (server-to-client only, resolve from DI)
 using var scope = Factory.Services.CreateScope();
 var notifService = scope.ServiceProvider.GetRequiredService<IPersonalNotificationService>();
 await notifService.SendToUserAsync(userId, notification);
 ```
+
+**Channel types**: `ChannelType.Global` (open to all), `ChannelType.Guild`, `ChannelType.DirectMessage`, `ChannelType.Party` (authorization required — currently return false).
+**Constants**: Use `ChannelConstants.JoinChannelMethod`, `ChannelConstants.LeaveChannelMethod` for method names. Use `ChatConstants.SendMessageMethod`, `ChatConstants.ReceiveMessageMethod` for message methods.
 
 ## What to Mock vs What to Run Real
 
@@ -137,13 +143,22 @@ await notifService.SendToUserAsync(userId, notification);
 1. **Check if `API.IntegrationTests` project exists** — if not, create it with all required packages and project references
 2. **Read existing fixtures** (`IntegrationTestBase`, `SignalRTestBase`, `CustomWebApplicationFactory`) to understand what helpers are ALREADY available. **Do NOT recreate or duplicate them.**
 3. **Read the source code** of the feature being tested (controller, hub, handler, etc.)
-4. **Write the integration test** reusing existing helpers. If a new shared helper is needed, add it to the appropriate base class. Tests covering:
-   - Happy path (200/201 response)
-   - Validation errors (400 response)
-   - Auth errors (401 without token, 403 with wrong role)
-   - Edge cases specific to the feature
-5. **Run `dotnet test --filter "FullyQualifiedName~Integration.Tests"`** to execute
-6. **Report results**: passed, failed, and any issues found
+4. **Read existing integration tests** to understand what is already covered. **Do NOT duplicate existing tests.** Extend or create new test classes as needed.
+5. **Design realistic multi-user scenarios** based on the feature. Think like a QA engineer:
+   - What does a real user flow look like with 2-3+ concurrent actors?
+   - What happens when one actor disconnects, leaves, or loses access?
+   - Are different channels/groups/resources properly isolated?
+   - Can a user rejoin after leaving? What state do they see?
+   - What happens with unauthorized access attempts?
+6. **Write the integration tests** reusing existing helpers. Create a dedicated scenario test file per feature (e.g., `ChannelScenarioTests.cs`). Tests covering:
+   - **Multi-actor happy path** — multiple users interacting together (not just one user in isolation)
+   - **Isolation** — actions in one scope don't leak to another (groups, channels, resources)
+   - **Disconnect/reconnect** — what happens when a user drops and comes back
+   - **Leave without disconnect** — user opts out but stays connected
+   - **Authorization errors** — unauthorized access returns proper errors
+   - **Edge cases specific to the feature**
+7. **Run `dotnet test --filter "FullyQualifiedName~IntegrationTests"`** to execute
+8. **Report results**: passed, failed, and any issues found
 
 ## Rules
 

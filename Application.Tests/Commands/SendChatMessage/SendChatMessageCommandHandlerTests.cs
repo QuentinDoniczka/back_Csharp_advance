@@ -12,7 +12,7 @@ public sealed class SendChatMessageCommandHandlerTests
 
     private static readonly Guid ValidSenderUserId = Guid.NewGuid();
     private const string ValidSenderEmail = "player@example.com";
-    private const string ValidSalonName = "General";
+    private const string ValidChannelName = "global:General";
     private const string ValidMessage = "Hello, world!";
 
     public SendChatMessageCommandHandlerTests()
@@ -25,7 +25,7 @@ public sealed class SendChatMessageCommandHandlerTests
     public async Task Handle_ValidCommand_ReturnsChatMessageOutputWithCorrectData()
     {
         // Arrange
-        var command = new SendChatMessageCommand(ValidSenderUserId, ValidSenderEmail, ValidSalonName, ValidMessage);
+        var command = new SendChatMessageCommand(ValidSenderUserId, ValidSenderEmail, ValidChannelName, ValidMessage);
         var beforeUtc = DateTime.UtcNow;
 
         // Act
@@ -40,10 +40,10 @@ public sealed class SendChatMessageCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_ValidCommand_BroadcastsToSalonGroup()
+    public async Task Handle_ValidCommand_BroadcastsToChannelGroup()
     {
         // Arrange
-        var command = new SendChatMessageCommand(ValidSenderUserId, ValidSenderEmail, ValidSalonName, ValidMessage);
+        var command = new SendChatMessageCommand(ValidSenderUserId, ValidSenderEmail, ValidChannelName, ValidMessage);
 
         // Act
         await _handler.Handle(command, CancellationToken.None);
@@ -52,7 +52,7 @@ public sealed class SendChatMessageCommandHandlerTests
         await _chatNotificationService
             .Received(1)
             .BroadcastToGroupAsync(
-                ValidSalonName,
+                ValidChannelName,
                 Arg.Any<ChatMessageOutput>(),
                 Arg.Any<CancellationToken>());
     }
@@ -61,7 +61,7 @@ public sealed class SendChatMessageCommandHandlerTests
     public async Task Handle_ValidCommand_BroadcastsCorrectMessage()
     {
         // Arrange
-        var command = new SendChatMessageCommand(ValidSenderUserId, ValidSenderEmail, ValidSalonName, ValidMessage);
+        var command = new SendChatMessageCommand(ValidSenderUserId, ValidSenderEmail, ValidChannelName, ValidMessage);
         ChatMessageOutput? broadcastedMessage = null;
 
         _chatNotificationService

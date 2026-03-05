@@ -13,6 +13,7 @@ Communication : francais avec l'utilisateur, anglais avec les agents.
 | `dev-backend` | Implementer le code (classes, interfaces, handlers, controllers, DTOs, entities, repositories...) |
 | `refacto-backend` | Refactorer, optimiser, nettoyer, appliquer les patterns, corriger les violations de couches |
 | `test-backend` | Ecrire et executer les tests unitaires (xUnit + NSubstitute). Bootstrap les projets de test si absents. |
+| `test-integration` | Ecrire et executer les tests d'integration (WebApplicationFactory + Testcontainers + SignalR). Cree des scenarios realistes multi-utilisateurs bases sur la feature developpee. |
 | `review-commit` | Auditer UNIQUEMENT les fichiers modifies/crees dans le dernier commit ou les changements non commites. Leger et scope. Remplace `review-backend` dans la chaine principale. Read-only. |
 | `review-backend` | Audit COMPLET du projet entier. Utilise uniquement sur demande explicite (hors chaine principale). Read-only. |
 | `brainstorm-backend` | **TOUJOURS invoque en premier.** Challenger la demande, evaluer la pertinence, proposer des alternatives plus simples ou performantes. |
@@ -45,12 +46,19 @@ Communication : francais avec l'utilisateur, anglais avec les agents.
    c) **Si que MEDIUM/LOW ou aucun issue** → passer directement aux tests.
    **Ne jamais sauter cette etape.**
    > **Note** : `review-backend` (audit complet du projet entier) reste disponible mais n'est utilise que sur demande explicite de l'utilisateur, en dehors de cette chaine.
-7. **Tester** — **TOUJOURS apres l'audit.** Delegue a `test-backend` pour :
+7. **Tester (unitaire)** — **TOUJOURS apres l'audit.** Delegue a `test-backend` pour :
    - Creer les projets de test si absents (`Tests/Domain.Tests`, `Tests/Application.Tests`)
    - Ecrire les tests unitaires pour chaque fichier cree/modifie (Domain + Application uniquement)
    - Executer `dotnet test` et verifier que tout passe
    - **Si les tests echouent a cause d'un bug dans le code source** → delegue a `dev-backend` pour corriger, puis re-delegue a `test-backend` pour re-verifier. **Max 2 allers-retours dev↔test.** Si ca ne passe toujours pas apres 2 tentatives, rapporte le probleme a l'utilisateur.
    - **Si les tests echouent a cause d'un bug dans le test** → `test-backend` corrige lui-meme et re-run.
+   **Ne jamais sauter cette etape.**
+7b. **Tester (integration)** — **TOUJOURS apres les tests unitaires.** Delegue a `test-integration` pour :
+   - Creer des tests d'integration qui couvrent la feature developpee avec des **scenarios realistes multi-utilisateurs**
+   - Tester les **flux complets** : pas juste un appel isole, mais des enchainements (ex: 3 users rejoignent un groupe, envoient des messages, un se deconnecte, les autres continuent)
+   - Couvrir les cas : happy path multi-acteurs, isolation entre groupes/canaux, deconnexion, erreurs d'autorisation
+   - Executer les tests et verifier que tout passe
+   - Meme boucle dev↔test que l'etape 7 si echec.
    **Ne jamais sauter cette etape.**
 8. **Mettre a jour la structure** — **TOUJOURS apres les tests.** Execute la skill `/update-structure` pour mettre a jour l'arborescence du projet dans `CLAUDE.md`. Cela garantit que le contexte est a jour pour les prochaines conversations. **Ne jamais sauter cette etape.**
 9. **Rapport** — Resume **obligatoire**, max 15 lignes, en francais. Doit contenir :
@@ -59,7 +67,14 @@ Communication : francais avec l'utilisateur, anglais avec les agents.
    ## Rapport
    **Nouveaux packages** : [liste des `dotnet add package X` necessaires, ou "aucun"]
    **Corrections refacto** : [liste courte des problemes corriges par refacto-backend, ou "aucune"]
-   **Tests** : X passes, Y echoues [ou "tous passes"]
+   **Tests unitaires** : X passes, Y echoues [ou "tous passes"]
+   **Tests integration** : X passes, Y echoues [ou "tous passes"]
+
+   **Coverage** :
+   | Module | Line | Branch | Method |
+   |--------|------|--------|--------|
+   | Domain | X% | X% | X% |
+   | Application | X% | X% | X% |
 
    **Fichiers crees** :
    - `Chemin/Fichier.cs` — description courte

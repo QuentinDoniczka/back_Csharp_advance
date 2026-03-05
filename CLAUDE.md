@@ -118,15 +118,16 @@ back_Csharp_advance/
 │   │       └── SetPasswordCommandValidator.cs
 │   ├── Constants/
 │   │   ├── AuthErrorMessages.cs
+│   │   ├── ChannelConstants.cs
 │   │   ├── ChatConstants.cs
 │   │   ├── ErrorMessages.cs
 │   │   └── NotificationConstants.cs
 │   ├── DTOs/
 │   │   └── Output/
 │   │       ├── AuthTokenResult.cs
+│   │       ├── ChatMessageOutput.cs
 │   │       ├── ExternalLoginResult.cs
 │   │       ├── GoogleLoginResult.cs
-│   │       ├── ChatMessageOutput.cs
 │   │       ├── GoogleUserInfo.cs
 │   │       ├── IdentityUserResult.cs
 │   │       ├── NotificationOutput.cs
@@ -134,7 +135,10 @@ back_Csharp_advance/
 │   ├── Exceptions/
 │   │   ├── AuthenticationException.cs
 │   │   └── ValidationException.cs
+│   ├── Helpers/
+│   │   └── ChannelNameBuilder.cs
 │   ├── Interfaces/
+│   │   ├── IChannelAuthorizationService.cs
 │   │   ├── IChatNotificationService.cs
 │   │   ├── IGoogleTokenValidator.cs
 │   │   ├── IIdentityService.cs
@@ -150,6 +154,7 @@ back_Csharp_advance/
 │   ├── Entities/
 │   │   └── RevokedToken.cs
 │   ├── Enums/
+│   │   ├── ChannelType.cs
 │   │   ├── NotificationType.cs
 │   │   └── RoleLevel.cs
 │   └── Interfaces/
@@ -168,6 +173,7 @@ back_Csharp_advance/
 │   │   ├── MinimumRoleHandler.cs
 │   │   └── MinimumRoleRequirement.cs
 │   ├── Chat/
+│   │   ├── ChannelAuthorizationService.cs
 │   │   ├── ChatNotificationService.cs
 │   │   ├── GameHub.cs
 │   │   ├── HubExceptionFilter.cs
@@ -187,30 +193,42 @@ back_Csharp_advance/
 │   ├── Authorization/
 │   │   ├── MinimumRoleHandlerTests.cs
 │   │   └── RoleHierarchyTests.cs
-│   └── Commands/
-│       ├── GoogleLogin/
-│       │   ├── GoogleLoginCommandHandlerTests.cs
-│       │   └── GoogleLoginCommandValidatorTests.cs
-│       ├── Login/
-│       │   ├── LoginCommandHandlerTests.cs
-│       │   └── LoginCommandValidatorTests.cs
-│       ├── Logout/
-│       │   ├── LogoutCommandHandlerTests.cs
-│       │   └── LogoutCommandValidatorTests.cs
-│       ├── RefreshToken/
-│       │   ├── RefreshTokenCommandHandlerTests.cs
-│       │   └── RefreshTokenCommandValidatorTests.cs
-│       ├── Register/
-│       │   ├── RegisterCommandHandlerTests.cs
-│       │   └── RegisterCommandValidatorTests.cs
-│       ├── SendChatMessage/
-│       │   ├── SendChatMessageCommandHandlerTests.cs
-│       │   └── SendChatMessageCommandValidatorTests.cs
-│       └── SetPassword/
-│           ├── SetPasswordCommandHandlerTests.cs
-│           └── SetPasswordCommandValidatorTests.cs
-├── API.IntegrationTests/
+│   ├── Behaviors/
+│   │   └── ValidationBehaviorTests.cs
 │   ├── Chat/
+│   │   └── ChannelAuthorizationServiceTests.cs
+│   ├── Commands/
+│   │   ├── GoogleLogin/
+│   │   │   ├── GoogleLoginCommandHandlerTests.cs
+│   │   │   └── GoogleLoginCommandValidatorTests.cs
+│   │   ├── Login/
+│   │   │   ├── LoginCommandHandlerTests.cs
+│   │   │   └── LoginCommandValidatorTests.cs
+│   │   ├── Logout/
+│   │   │   ├── LogoutCommandHandlerTests.cs
+│   │   │   └── LogoutCommandValidatorTests.cs
+│   │   ├── RefreshToken/
+│   │   │   ├── RefreshTokenCommandHandlerTests.cs
+│   │   │   └── RefreshTokenCommandValidatorTests.cs
+│   │   ├── Register/
+│   │   │   ├── RegisterCommandHandlerTests.cs
+│   │   │   └── RegisterCommandValidatorTests.cs
+│   │   ├── SendChatMessage/
+│   │   │   ├── SendChatMessageCommandHandlerTests.cs
+│   │   │   └── SendChatMessageCommandValidatorTests.cs
+│   │   └── SetPassword/
+│   │       ├── SetPasswordCommandHandlerTests.cs
+│   │       └── SetPasswordCommandValidatorTests.cs
+│   ├── Exceptions/
+│   │   └── ValidationExceptionTests.cs
+│   └── Helpers/
+│       └── ChannelNameBuilderTests.cs
+├── API.IntegrationTests/
+│   ├── Auth/
+│   │   ├── LoginTests.cs
+│   │   └── RegisterTests.cs
+│   ├── Chat/
+│   │   ├── ChannelScenarioTests.cs
 │   │   └── GameHubTests.cs
 │   ├── Fixtures/
 │   │   ├── CustomWebApplicationFactory.cs

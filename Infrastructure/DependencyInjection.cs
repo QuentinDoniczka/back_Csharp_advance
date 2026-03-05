@@ -86,6 +86,7 @@ public static class DependencyInjection
         });
         services.AddScoped<IChatNotificationService, ChatNotificationService>();
         services.AddScoped<IPersonalNotificationService, PersonalNotificationService>();
+        services.AddScoped<IChannelAuthorizationService, ChannelAuthorizationService>();
 
         return services;
     }

@@ -22,7 +22,7 @@ public sealed class SendChatMessageCommandHandler : IRequestHandler<SendChatMess
             DateTime.UtcNow);
 
         await _chatNotificationService.BroadcastToGroupAsync(
-            request.SalonName,
+            request.ChannelName,
             message,
             cancellationToken).ConfigureAwait(false);
 

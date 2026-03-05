@@ -7,9 +7,9 @@ public sealed class SendChatMessageCommandValidator : AbstractValidator<SendChat
 {
     public SendChatMessageCommandValidator()
     {
-        RuleFor(x => x.SalonName)
-            .NotEmpty().WithMessage(ChatConstants.SalonNameEmpty)
-            .MaximumLength(ChatConstants.SalonNameMaxLength).WithMessage(ChatConstants.SalonNameTooLong);
+        RuleFor(x => x.ChannelName)
+            .NotEmpty().WithMessage(ChannelConstants.ChannelNameEmpty)
+            .MaximumLength(ChannelConstants.ChannelNameMaxLength).WithMessage(ChannelConstants.ChannelNameTooLong);
 
         RuleFor(x => x.Message)
             .NotEmpty().WithMessage(ChatConstants.MessageEmpty)
