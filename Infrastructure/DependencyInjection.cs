@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -79,7 +80,10 @@ public static class DependencyInjection
         services.Configure<GoogleAuthSettings>(configuration.GetSection(GoogleAuthSettings.SectionName));
         services.AddScoped<IGoogleTokenValidator, GoogleTokenValidator>();
 
-        services.AddSignalR();
+        services.AddSignalR(options =>
+        {
+            options.AddFilter<HubExceptionFilter>();
+        });
         services.AddScoped<IChatNotificationService, ChatNotificationService>();
 
         return services;
