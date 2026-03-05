@@ -108,27 +108,38 @@ back_Csharp_advance/
 │   │   │   ├── RegisterCommandHandler.cs
 │   │   │   ├── RegisterCommandValidator.cs
 │   │   │   └── RegisterResult.cs
+│   │   ├── SendChatMessage/
+│   │   │   ├── SendChatMessageCommand.cs
+│   │   │   ├── SendChatMessageCommandHandler.cs
+│   │   │   └── SendChatMessageCommandValidator.cs
 │   │   └── SetPassword/
 │   │       ├── SetPasswordCommand.cs
 │   │       ├── SetPasswordCommandHandler.cs
 │   │       └── SetPasswordCommandValidator.cs
 │   ├── Constants/
-│   │   └── AuthErrorMessages.cs
+│   │   ├── AuthErrorMessages.cs
+│   │   ├── ChatConstants.cs
+│   │   ├── ErrorMessages.cs
+│   │   └── NotificationConstants.cs
 │   ├── DTOs/
 │   │   └── Output/
 │   │       ├── AuthTokenResult.cs
 │   │       ├── ExternalLoginResult.cs
 │   │       ├── GoogleLoginResult.cs
+│   │       ├── ChatMessageOutput.cs
 │   │       ├── GoogleUserInfo.cs
 │   │       ├── IdentityUserResult.cs
+│   │       ├── NotificationOutput.cs
 │   │       └── RefreshTokenInfo.cs
 │   ├── Exceptions/
 │   │   ├── AuthenticationException.cs
 │   │   └── ValidationException.cs
 │   ├── Interfaces/
+│   │   ├── IChatNotificationService.cs
 │   │   ├── IGoogleTokenValidator.cs
 │   │   ├── IIdentityService.cs
-│   │   └── IJwtTokenService.cs
+│   │   ├── IJwtTokenService.cs
+│   │   └── IPersonalNotificationService.cs
 │   ├── Validators/
 │   │   └── PasswordRules.cs
 │   └── DependencyInjection.cs
@@ -139,6 +150,7 @@ back_Csharp_advance/
 │   ├── Entities/
 │   │   └── RevokedToken.cs
 │   ├── Enums/
+│   │   ├── NotificationType.cs
 │   │   └── RoleLevel.cs
 │   └── Interfaces/
 │       └── IRevokedTokenRepository.cs
@@ -155,6 +167,11 @@ back_Csharp_advance/
 │   │   ├── MinimumRoleAttribute.cs
 │   │   ├── MinimumRoleHandler.cs
 │   │   └── MinimumRoleRequirement.cs
+│   ├── Chat/
+│   │   ├── ChatNotificationService.cs
+│   │   ├── GameHub.cs
+│   │   ├── HubExceptionFilter.cs
+│   │   └── PersonalNotificationService.cs
 │   ├── Data/
 │   │   ├── Configurations/
 │   │   │   └── RevokedTokenConfiguration.cs
@@ -186,9 +203,21 @@ back_Csharp_advance/
 │       ├── Register/
 │       │   ├── RegisterCommandHandlerTests.cs
 │       │   └── RegisterCommandValidatorTests.cs
+│       ├── SendChatMessage/
+│       │   ├── SendChatMessageCommandHandlerTests.cs
+│       │   └── SendChatMessageCommandValidatorTests.cs
 │       └── SetPassword/
 │           ├── SetPasswordCommandHandlerTests.cs
 │           └── SetPasswordCommandValidatorTests.cs
+├── API.IntegrationTests/
+│   ├── Chat/
+│   │   └── GameHubTests.cs
+│   ├── Fixtures/
+│   │   ├── CustomWebApplicationFactory.cs
+│   │   ├── IntegrationTestBase.cs
+│   │   └── SignalRTestBase.cs
+│   └── Notifications/
+│       └── PersonalNotificationTests.cs
 ├── Domain.Tests/
 │   └── Entities/
 │       └── RevokedTokenTests.cs

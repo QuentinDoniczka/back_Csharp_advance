@@ -6,4 +6,5 @@ namespace BackBase.Application.Commands.SendChatMessage;
 public record SendChatMessageCommand(
     Guid SenderUserId,
     string SenderEmail,
+    string SalonName,
     string Message) : IRequest<ChatMessageOutput>;

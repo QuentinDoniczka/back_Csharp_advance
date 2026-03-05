@@ -85,13 +85,14 @@ public static class DependencyInjection
             options.AddFilter<HubExceptionFilter>();
         });
         services.AddScoped<IChatNotificationService, ChatNotificationService>();
+        services.AddScoped<IPersonalNotificationService, PersonalNotificationService>();
 
         return services;
     }
 
     public static IEndpointRouteBuilder MapInfrastructureEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapHub<ChatHub>(ChatConstants.HubPath);
+        endpoints.MapHub<GameHub>(ChatConstants.HubPath);
         return endpoints;
     }
 }

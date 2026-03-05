@@ -1,4 +1,3 @@
-using BackBase.Application.Constants;
 using BackBase.Application.DTOs.Output;
 using BackBase.Application.Interfaces;
 using MediatR;
@@ -23,7 +22,7 @@ public sealed class SendChatMessageCommandHandler : IRequestHandler<SendChatMess
             DateTime.UtcNow);
 
         await _chatNotificationService.BroadcastToGroupAsync(
-            ChatConstants.GlobalChatGroup,
+            request.SalonName,
             message,
             cancellationToken).ConfigureAwait(false);
 

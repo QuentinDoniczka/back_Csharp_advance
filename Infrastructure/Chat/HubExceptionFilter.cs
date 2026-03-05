@@ -1,4 +1,5 @@
 using System.Text.Json;
+using BackBase.Application.Constants;
 using BackBase.Application.Exceptions;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
@@ -36,7 +37,7 @@ public sealed class HubExceptionFilter : IHubFilter
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unhandled exception in hub method {Method}", invocationContext.HubMethodName);
-            throw new HubException("An unexpected error occurred. Please try again later.");
+            throw new HubException(ErrorMessages.UnexpectedError);
         }
     }
 }

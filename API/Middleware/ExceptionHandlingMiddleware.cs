@@ -1,3 +1,4 @@
+using BackBase.Application.Constants;
 using BackBase.Application.Exceptions;
 
 namespace BackBase.API.Middleware;
@@ -66,7 +67,7 @@ public sealed class ExceptionHandlingMiddleware
         {
             title = "Server Error",
             status = StatusCodes.Status500InternalServerError,
-            detail = "An unexpected error occurred. Please try again later."
+            detail = ErrorMessages.UnexpectedError
         });
     }
 }

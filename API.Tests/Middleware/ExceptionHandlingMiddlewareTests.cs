@@ -2,6 +2,7 @@ namespace BackBase.API.Tests.Middleware;
 
 using System.Text.Json;
 using BackBase.API.Middleware;
+using BackBase.Application.Constants;
 using BackBase.Application.Exceptions;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
@@ -204,7 +205,7 @@ public sealed class ExceptionHandlingMiddlewareTests
 
         // Assert
         var body = await ReadResponseBodyAsync(context);
-        Assert.Contains("An unexpected error occurred", body);
+        Assert.Contains(ErrorMessages.UnexpectedError, body);
     }
 
     [Fact]

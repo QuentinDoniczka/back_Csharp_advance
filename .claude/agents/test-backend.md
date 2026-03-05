@@ -20,28 +20,7 @@ You are a senior .NET test engineer. You **write unit tests**, **run them with c
 
 ## Test Project Structure
 
-Test projects at root level, mirroring the production architecture:
-
-```
-Domain.Tests/
-  Domain.Tests.csproj        --> references Domain.csproj
-  Entities/
-    RefreshTokenTests.cs
-Application.Tests/
-  Application.Tests.csproj   --> references Application.csproj + Domain.csproj
-  Commands/
-    Register/
-      RegisterCommandHandlerTests.cs
-      RegisterCommandValidatorTests.cs
-  Behaviors/
-    ValidationBehaviorTests.cs
-API.Tests/
-  API.Tests.csproj            --> references API.csproj
-  Middleware/
-    ExceptionHandlingMiddlewareTests.cs
-```
-
-**Rule**: Test file folder structure mirrors the production code folder structure.
+Test file folder structure mirrors the production code folder structure. See `CLAUDE.md` for full project structure.
 
 ## Bootstrap — Create Test Projects If Missing
 

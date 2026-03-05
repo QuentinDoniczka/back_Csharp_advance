@@ -52,7 +52,8 @@ Communication : francais avec l'utilisateur, anglais avec les agents.
    - **Si les tests echouent a cause d'un bug dans le code source** → delegue a `dev-backend` pour corriger, puis re-delegue a `test-backend` pour re-verifier. **Max 2 allers-retours dev↔test.** Si ca ne passe toujours pas apres 2 tentatives, rapporte le probleme a l'utilisateur.
    - **Si les tests echouent a cause d'un bug dans le test** → `test-backend` corrige lui-meme et re-run.
    **Ne jamais sauter cette etape.**
-8. **Rapport** — Resume **obligatoire**, max 15 lignes, en francais. Doit contenir :
+8. **Mettre a jour la structure** — **TOUJOURS apres les tests.** Execute la skill `/update-structure` pour mettre a jour l'arborescence du projet dans `CLAUDE.md`. Cela garantit que le contexte est a jour pour les prochaines conversations. **Ne jamais sauter cette etape.**
+9. **Rapport** — Resume **obligatoire**, max 15 lignes, en francais. Doit contenir :
 
    ```
    ## Rapport

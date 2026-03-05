@@ -10,6 +10,7 @@ public sealed class SendChatMessageCommandValidatorTests
 
     private static readonly Guid ValidSenderUserId = Guid.NewGuid();
     private const string ValidSenderEmail = "player@example.com";
+    private const string ValidSalonName = "General";
     private const string ValidMessage = "Hello, world!";
 
     public SendChatMessageCommandValidatorTests()
@@ -21,7 +22,7 @@ public sealed class SendChatMessageCommandValidatorTests
     public void Validate_ValidCommand_ShouldPass()
     {
         // Arrange
-        var command = new SendChatMessageCommand(ValidSenderUserId, ValidSenderEmail, ValidMessage);
+        var command = new SendChatMessageCommand(ValidSenderUserId, ValidSenderEmail, ValidSalonName, ValidMessage);
 
         // Act
         var result = _validator.TestValidate(command);
@@ -34,7 +35,7 @@ public sealed class SendChatMessageCommandValidatorTests
     public void Validate_EmptyMessage_ShouldFail()
     {
         // Arrange
-        var command = new SendChatMessageCommand(ValidSenderUserId, ValidSenderEmail, "");
+        var command = new SendChatMessageCommand(ValidSenderUserId, ValidSenderEmail, ValidSalonName, "");
 
         // Act
         var result = _validator.TestValidate(command);
@@ -49,7 +50,7 @@ public sealed class SendChatMessageCommandValidatorTests
     {
         // Arrange
         var longMessage = new string('A', ChatConstants.MaxMessageLength + 1);
-        var command = new SendChatMessageCommand(ValidSenderUserId, ValidSenderEmail, longMessage);
+        var command = new SendChatMessageCommand(ValidSenderUserId, ValidSenderEmail, ValidSalonName, longMessage);
 
         // Act
         var result = _validator.TestValidate(command);
@@ -63,7 +64,7 @@ public sealed class SendChatMessageCommandValidatorTests
     public void Validate_EmptySenderUserId_ShouldFail()
     {
         // Arrange
-        var command = new SendChatMessageCommand(Guid.Empty, ValidSenderEmail, ValidMessage);
+        var command = new SendChatMessageCommand(Guid.Empty, ValidSenderEmail, ValidSalonName, ValidMessage);
 
         // Act
         var result = _validator.TestValidate(command);
@@ -76,12 +77,41 @@ public sealed class SendChatMessageCommandValidatorTests
     public void Validate_EmptySenderEmail_ShouldFail()
     {
         // Arrange
-        var command = new SendChatMessageCommand(ValidSenderUserId, "", ValidMessage);
+        var command = new SendChatMessageCommand(ValidSenderUserId, "", ValidSalonName, ValidMessage);
 
         // Act
         var result = _validator.TestValidate(command);
 
         // Assert
         result.ShouldHaveValidationErrorFor(x => x.SenderEmail);
+    }
+
+    [Fact]
+    public void Validate_EmptySalonName_ShouldFail()
+    {
+        // Arrange
+        var command = new SendChatMessageCommand(ValidSenderUserId, ValidSenderEmail, "", ValidMessage);
+
+        // Act
+        var result = _validator.TestValidate(command);
+
+        // Assert
+        result.ShouldHaveValidationErrorFor(x => x.SalonName)
+            .WithErrorMessage(ChatConstants.SalonNameEmpty);
+    }
+
+    [Fact]
+    public void Validate_SalonNameExceedsMaxLength_ShouldFail()
+    {
+        // Arrange
+        var longSalonName = new string('A', ChatConstants.SalonNameMaxLength + 1);
+        var command = new SendChatMessageCommand(ValidSenderUserId, ValidSenderEmail, longSalonName, ValidMessage);
+
+        // Act
+        var result = _validator.TestValidate(command);
+
+        // Assert
+        result.ShouldHaveValidationErrorFor(x => x.SalonName)
+            .WithErrorMessage(ChatConstants.SalonNameTooLong);
     }
 }

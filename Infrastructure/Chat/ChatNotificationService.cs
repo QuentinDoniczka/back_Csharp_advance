@@ -7,9 +7,9 @@ namespace BackBase.Infrastructure.Chat;
 
 public sealed class ChatNotificationService : IChatNotificationService
 {
-    private readonly IHubContext<ChatHub> _hubContext;
+    private readonly IHubContext<GameHub> _hubContext;
 
-    public ChatNotificationService(IHubContext<ChatHub> hubContext)
+    public ChatNotificationService(IHubContext<GameHub> hubContext)
     {
         _hubContext = hubContext;
     }

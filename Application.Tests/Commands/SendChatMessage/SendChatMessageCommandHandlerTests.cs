@@ -1,7 +1,6 @@
 namespace BackBase.Application.Tests.Commands.SendChatMessage;
 
 using BackBase.Application.Commands.SendChatMessage;
-using BackBase.Application.Constants;
 using BackBase.Application.DTOs.Output;
 using BackBase.Application.Interfaces;
 using NSubstitute;
@@ -13,6 +12,7 @@ public sealed class SendChatMessageCommandHandlerTests
 
     private static readonly Guid ValidSenderUserId = Guid.NewGuid();
     private const string ValidSenderEmail = "player@example.com";
+    private const string ValidSalonName = "General";
     private const string ValidMessage = "Hello, world!";
 
     public SendChatMessageCommandHandlerTests()
@@ -25,7 +25,7 @@ public sealed class SendChatMessageCommandHandlerTests
     public async Task Handle_ValidCommand_ReturnsChatMessageOutputWithCorrectData()
     {
         // Arrange
-        var command = new SendChatMessageCommand(ValidSenderUserId, ValidSenderEmail, ValidMessage);
+        var command = new SendChatMessageCommand(ValidSenderUserId, ValidSenderEmail, ValidSalonName, ValidMessage);
         var beforeUtc = DateTime.UtcNow;
 
         // Act
@@ -40,10 +40,10 @@ public sealed class SendChatMessageCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_ValidCommand_BroadcastsToGlobalChatGroup()
+    public async Task Handle_ValidCommand_BroadcastsToSalonGroup()
     {
         // Arrange
-        var command = new SendChatMessageCommand(ValidSenderUserId, ValidSenderEmail, ValidMessage);
+        var command = new SendChatMessageCommand(ValidSenderUserId, ValidSenderEmail, ValidSalonName, ValidMessage);
 
         // Act
         await _handler.Handle(command, CancellationToken.None);
@@ -52,7 +52,7 @@ public sealed class SendChatMessageCommandHandlerTests
         await _chatNotificationService
             .Received(1)
             .BroadcastToGroupAsync(
-                ChatConstants.GlobalChatGroup,
+                ValidSalonName,
                 Arg.Any<ChatMessageOutput>(),
                 Arg.Any<CancellationToken>());
     }
@@ -61,7 +61,7 @@ public sealed class SendChatMessageCommandHandlerTests
     public async Task Handle_ValidCommand_BroadcastsCorrectMessage()
     {
         // Arrange
-        var command = new SendChatMessageCommand(ValidSenderUserId, ValidSenderEmail, ValidMessage);
+        var command = new SendChatMessageCommand(ValidSenderUserId, ValidSenderEmail, ValidSalonName, ValidMessage);
         ChatMessageOutput? broadcastedMessage = null;
 
         _chatNotificationService
