@@ -71,6 +71,16 @@ If a file is in the wrong layer → **move it and fix namespaces BEFORE any othe
 - **Synchronous I/O** — `DbContext.SaveChanges()` → `SaveChangesAsync()`, `File.ReadAllText` → `File.ReadAllTextAsync`
 - **Duplicated logic across handlers (DRY)** — If 2+ handlers contain near-identical code (e.g., token validation + claim extraction, entity creation boilerplate), extract into a shared service method or a private helper. Grep for the duplicated pattern across all handlers to find all occurrences.
 
+### HIGH — Clean Code Readability
+
+- **Too many parameters** — Method with 3+ parameters → regroup dans un record/object (`CreateUser(string name, string email, string role, bool isActive)` → `CreateUser(CreateUserRequest request)`). Exception : 2 params simples et cohérents (ex: `GetById(Guid id, CancellationToken ct)`) est OK.
+- **Flag arguments** — Paramètre `bool` qui change le comportement interne (`SendEmail(bool isUrgent)`) → séparer en deux méthodes (`SendEmail()` / `SendUrgentEmail()`) ou utiliser un enum si 3+ variantes.
+- **Deep nesting** — 3+ niveaux d'indentation (if/else/if/try) → inverser avec guard clauses / early returns. L'objectif est un seul niveau de happy path.
+- **Opaque conditions** — Expression booléenne complexe (`if (x.Status != 3 && x.Date < now && !x.IsDeleted)`) → extraire dans une variable ou méthode nommée (`var isEligibleForProcessing = ...` ou `x.IsEligibleForProcessing()`).
+- **Mixed abstraction levels** — Une méthode mélange orchestration haut niveau et détails bas niveau (ex: appel MediatR + string manipulation dans le même bloc) → extraire les détails dans des méthodes privées nommées. Règle : on ne devrait pas devoir lire le corps d'une méthode pour comprendre ce qu'elle fait.
+- **Hidden side effects** — Méthode nommée `GetX()` ou `FindX()` qui modifie un état (sauvegarde en DB, envoie un event) → renommer pour refléter la mutation (`GetOrCreateX()`, `ResolveAndNotify()`) ou séparer query et command.
+- **Meaningless names** — Variables nommées `data`, `result`, `temp`, `info`, `item`, `val`, paramètres nommés `dto`, `model`, `request` sans contexte → renommer avec le domaine métier (`unpaidInvoices`, `registrationCommand`).
+- 
 ### MEDIUM — SOLID & Design
 
 - **SRP violations** — class doing too many things → extract classes
@@ -115,6 +125,21 @@ Suggest a pattern **only** when the code already suffers from the problem the pa
 **Mediator/CQRS** — When:
 - Request handling mixes read and write concerns
 - → Separate into Commands and Queries via MediatR
+
+**Result Pattern** — When:
+- Methods return `null` to signal failure, or throw exceptions for expected business cases (user not found, validation failed, duplicate entry)
+- Callers guess what `null` means or use try/catch for flow control
+- → Return a `Result<T>` that makes success/failure explicit. Reserve exceptions for unexpected errors only.
+
+**Null Object Pattern** — When:
+- Multiple `if (x != null)` checks scattered before every usage of the same dependency
+- Default/no-op behavior is repeated in every null branch
+- → Provide a no-op implementation (`NullLogger`, `NoOpNotifier`) injected via DI instead of null checks everywhere
+
+**Options Pattern** — When:
+- A service reads 3+ related config values individually from `IConfiguration` (`_config["Jwt:Key"]`, `_config["Jwt:Issuer"]`, `_config["Jwt:ExpireMinutes"]`)
+- Config keys are magic strings repeated across files
+- → Group into a strongly-typed class + `IOptions<T>` / `IOptionsSnapshot<T>`. One bind in `Program.cs`, clean injection everywhere.
 
 ### STRUCTURAL — Project Simplification
 
