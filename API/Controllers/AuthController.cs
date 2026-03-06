@@ -1,7 +1,7 @@
 namespace BackBase.API.Controllers;
 
-using System.Security.Claims;
 using BackBase.API.DTOs;
+using BackBase.API.Extensions;
 using BackBase.Application.Commands.GoogleLogin;
 using BackBase.Application.Commands.Login;
 using BackBase.Application.Commands.Logout;
@@ -72,11 +72,11 @@ public sealed class AuthController : ControllerBase
     [HttpPost("set-password")]
     public async Task<IActionResult> SetPassword([FromBody] SetPasswordRequestDto request, CancellationToken cancellationToken)
     {
-        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (userIdClaim is null || !Guid.TryParse(userIdClaim, out var userId))
+        var userId = User.GetUserId();
+        if (userId is null)
             return Unauthorized();
 
-        var command = new SetPasswordCommand(userId, request.Password);
+        var command = new SetPasswordCommand(userId.Value, request.Password);
         await _mediator.Send(command, cancellationToken);
         return NoContent();
     }

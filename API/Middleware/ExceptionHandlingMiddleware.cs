@@ -30,6 +30,18 @@ public sealed class ExceptionHandlingMiddleware
                 case AuthenticationException authEx:
                     await HandleAuthenticationExceptionAsync(context, authEx);
                     break;
+                case ForbiddenException forbiddenEx:
+                    await HandleForbiddenExceptionAsync(context, forbiddenEx);
+                    break;
+                case NotFoundException notFoundEx:
+                    await HandleNotFoundExceptionAsync(context, notFoundEx);
+                    break;
+                case ConflictException conflictEx:
+                    await HandleConflictExceptionAsync(context, conflictEx);
+                    break;
+                case InvalidOperationException invalidOpEx:
+                    await HandleConflictExceptionAsync(context, invalidOpEx);
+                    break;
                 default:
                     _logger.LogError(ex, "Unhandled exception occurred");
                     await HandleExceptionAsync(context);
@@ -56,6 +68,39 @@ public sealed class ExceptionHandlingMiddleware
         {
             title = "Authentication Failed",
             status = StatusCodes.Status401Unauthorized,
+            detail = exception.Message
+        });
+    }
+
+    private static async Task HandleForbiddenExceptionAsync(HttpContext context, ForbiddenException exception)
+    {
+        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+        await context.Response.WriteAsJsonAsync(new
+        {
+            title = "Forbidden",
+            status = StatusCodes.Status403Forbidden,
+            detail = exception.Message
+        });
+    }
+
+    private static async Task HandleNotFoundExceptionAsync(HttpContext context, NotFoundException exception)
+    {
+        context.Response.StatusCode = StatusCodes.Status404NotFound;
+        await context.Response.WriteAsJsonAsync(new
+        {
+            title = "Not Found",
+            status = StatusCodes.Status404NotFound,
+            detail = exception.Message
+        });
+    }
+
+    private static async Task HandleConflictExceptionAsync(HttpContext context, Exception exception)
+    {
+        context.Response.StatusCode = StatusCodes.Status409Conflict;
+        await context.Response.WriteAsJsonAsync(new
+        {
+            title = "Conflict",
+            status = StatusCodes.Status409Conflict,
             detail = exception.Message
         });
     }

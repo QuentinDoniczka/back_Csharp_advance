@@ -63,9 +63,17 @@ This backend exposes a REST API consumed by a frontend client. It handles all ga
 ```
 back_Csharp_advance/
 ├── API/
+│   ├── Authorization/
+│   │   ├── MinimumRoleAttribute.cs
+│   │   ├── MinimumRoleHandler.cs
+│   │   └── MinimumRoleRequirement.cs
 │   ├── Controllers/
-│   │   └── AuthController.cs
+│   │   ├── AccountController.cs
+│   │   ├── AuthController.cs
+│   │   └── RoleController.cs
 │   ├── DTOs/
+│   │   ├── ChangePasswordRequestDto.cs
+│   │   ├── ChangeUserRoleRequestDto.cs
 │   │   ├── GoogleLoginRequestDto.cs
 │   │   ├── GoogleLoginResponseDto.cs
 │   │   ├── LoginRequestDto.cs
@@ -75,7 +83,12 @@ back_Csharp_advance/
 │   │   ├── RefreshTokenResponseDto.cs
 │   │   ├── RegisterRequestDto.cs
 │   │   ├── RegisterResponseDto.cs
-│   │   └── SetPasswordRequestDto.cs
+│   │   ├── SetPasswordRequestDto.cs
+│   │   ├── UpdateProfileRequestDto.cs
+│   │   ├── UserProfileResponseDto.cs
+│   │   └── UserRoleResponseDto.cs
+│   ├── Extensions/
+│   │   └── ClaimsPrincipalExtensions.cs
 │   ├── Middleware/
 │   │   └── ExceptionHandlingMiddleware.cs
 │   ├── Program.cs
@@ -83,10 +96,23 @@ back_Csharp_advance/
 │   └── appsettings.Development.json
 ├── Application/
 │   ├── Authorization/
+│   │   ├── MinimumRoleRequirement.cs
 │   │   └── RoleHierarchy.cs
 │   ├── Behaviors/
 │   │   └── ValidationBehavior.cs
 │   ├── Commands/
+│   │   ├── ChangePassword/
+│   │   │   ├── ChangePasswordCommand.cs
+│   │   │   ├── ChangePasswordCommandHandler.cs
+│   │   │   └── ChangePasswordCommandValidator.cs
+│   │   ├── ChangeUserRole/
+│   │   │   ├── ChangeUserRoleCommand.cs
+│   │   │   ├── ChangeUserRoleCommandHandler.cs
+│   │   │   └── ChangeUserRoleCommandValidator.cs
+│   │   ├── DeactivateAccount/
+│   │   │   ├── DeactivateAccountCommand.cs
+│   │   │   ├── DeactivateAccountCommandHandler.cs
+│   │   │   └── DeactivateAccountCommandValidator.cs
 │   │   ├── GoogleLogin/
 │   │   │   ├── GoogleLoginCommand.cs
 │   │   │   ├── GoogleLoginCommandHandler.cs
@@ -99,6 +125,10 @@ back_Csharp_advance/
 │   │   │   ├── LogoutCommand.cs
 │   │   │   ├── LogoutCommandHandler.cs
 │   │   │   └── LogoutCommandValidator.cs
+│   │   ├── ReactivateAccount/
+│   │   │   ├── ReactivateAccountCommand.cs
+│   │   │   ├── ReactivateAccountCommandHandler.cs
+│   │   │   └── ReactivateAccountCommandValidator.cs
 │   │   ├── RefreshToken/
 │   │   │   ├── RefreshTokenCommand.cs
 │   │   │   ├── RefreshTokenCommandHandler.cs
@@ -112,16 +142,21 @@ back_Csharp_advance/
 │   │   │   ├── SendChatMessageCommand.cs
 │   │   │   ├── SendChatMessageCommandHandler.cs
 │   │   │   └── SendChatMessageCommandValidator.cs
-│   │   └── SetPassword/
-│   │       ├── SetPasswordCommand.cs
-│   │       ├── SetPasswordCommandHandler.cs
-│   │       └── SetPasswordCommandValidator.cs
+│   │   ├── SetPassword/
+│   │   │   ├── SetPasswordCommand.cs
+│   │   │   ├── SetPasswordCommandHandler.cs
+│   │   │   └── SetPasswordCommandValidator.cs
+│   │   └── UpdateProfile/
+│   │       ├── UpdateProfileCommand.cs
+│   │       ├── UpdateProfileCommandHandler.cs
+│   │       └── UpdateProfileCommandValidator.cs
 │   ├── Constants/
 │   │   ├── AuthErrorMessages.cs
 │   │   ├── ChannelConstants.cs
 │   │   ├── ChatConstants.cs
 │   │   ├── ErrorMessages.cs
-│   │   └── NotificationConstants.cs
+│   │   ├── NotificationConstants.cs
+│   │   └── ProfileConstants.cs
 │   ├── DTOs/
 │   │   └── Output/
 │   │       ├── AuthTokenResult.cs
@@ -131,9 +166,14 @@ back_Csharp_advance/
 │   │       ├── GoogleUserInfo.cs
 │   │       ├── IdentityUserResult.cs
 │   │       ├── NotificationOutput.cs
-│   │       └── RefreshTokenInfo.cs
+│   │       ├── RefreshTokenInfo.cs
+│   │       ├── UserProfileOutput.cs
+│   │       └── UserRoleOutput.cs
 │   ├── Exceptions/
 │   │   ├── AuthenticationException.cs
+│   │   ├── ConflictException.cs
+│   │   ├── ForbiddenException.cs
+│   │   ├── NotFoundException.cs
 │   │   └── ValidationException.cs
 │   ├── Helpers/
 │   │   └── ChannelNameBuilder.cs
@@ -144,6 +184,19 @@ back_Csharp_advance/
 │   │   ├── IIdentityService.cs
 │   │   ├── IJwtTokenService.cs
 │   │   └── IPersonalNotificationService.cs
+│   ├── Queries/
+│   │   ├── GetMyProfile/
+│   │   │   ├── GetMyProfileQuery.cs
+│   │   │   ├── GetMyProfileQueryHandler.cs
+│   │   │   └── GetMyProfileQueryValidator.cs
+│   │   ├── GetUserProfile/
+│   │   │   ├── GetUserProfileQuery.cs
+│   │   │   ├── GetUserProfileQueryHandler.cs
+│   │   │   └── GetUserProfileQueryValidator.cs
+│   │   └── GetUserRole/
+│   │       ├── GetUserRoleQuery.cs
+│   │       ├── GetUserRoleQueryHandler.cs
+│   │       └── GetUserRoleQueryValidator.cs
 │   ├── Validators/
 │   │   └── PasswordRules.cs
 │   └── DependencyInjection.cs
@@ -152,13 +205,15 @@ back_Csharp_advance/
 │   │   ├── AppRoles.cs
 │   │   └── ExternalProviders.cs
 │   ├── Entities/
-│   │   └── RevokedToken.cs
+│   │   ├── RevokedToken.cs
+│   │   └── UserProfile.cs
 │   ├── Enums/
 │   │   ├── ChannelType.cs
 │   │   ├── NotificationType.cs
 │   │   └── RoleLevel.cs
 │   └── Interfaces/
-│       └── IRevokedTokenRepository.cs
+│       ├── IRevokedTokenRepository.cs
+│       └── IUserProfileRepository.cs
 ├── Infrastructure/
 │   ├── Authentication/
 │   │   ├── ApplicationUser.cs
@@ -180,13 +235,17 @@ back_Csharp_advance/
 │   │   └── PersonalNotificationService.cs
 │   ├── Data/
 │   │   ├── Configurations/
-│   │   │   └── RevokedTokenConfiguration.cs
+│   │   │   ├── RevokedTokenConfiguration.cs
+│   │   │   └── UserProfileConfiguration.cs
 │   │   └── AppDbContext.cs
-│   ├── Migrations/ (5 files)
+│   ├── Migrations/ (7 files)
 │   ├── Repositories/
-│   │   └── RevokedTokenRepository.cs
+│   │   ├── RevokedTokenRepository.cs
+│   │   └── UserProfileRepository.cs
 │   └── DependencyInjection.cs
 ├── API.Tests/
+│   ├── Authorization/
+│   │   └── MinimumRoleHandlerTests.cs
 │   └── Middleware/
 │       └── ExceptionHandlingMiddlewareTests.cs
 ├── Application.Tests/
@@ -198,6 +257,15 @@ back_Csharp_advance/
 │   ├── Chat/
 │   │   └── ChannelAuthorizationServiceTests.cs
 │   ├── Commands/
+│   │   ├── ChangePassword/
+│   │   │   ├── ChangePasswordCommandHandlerTests.cs
+│   │   │   └── ChangePasswordCommandValidatorTests.cs
+│   │   ├── ChangeUserRole/
+│   │   │   ├── ChangeUserRoleCommandHandlerTests.cs
+│   │   │   └── ChangeUserRoleCommandValidatorTests.cs
+│   │   ├── DeactivateAccount/
+│   │   │   ├── DeactivateAccountCommandHandlerTests.cs
+│   │   │   └── DeactivateAccountCommandValidatorTests.cs
 │   │   ├── GoogleLogin/
 │   │   │   ├── GoogleLoginCommandHandlerTests.cs
 │   │   │   └── GoogleLoginCommandValidatorTests.cs
@@ -207,6 +275,9 @@ back_Csharp_advance/
 │   │   ├── Logout/
 │   │   │   ├── LogoutCommandHandlerTests.cs
 │   │   │   └── LogoutCommandValidatorTests.cs
+│   │   ├── ReactivateAccount/
+│   │   │   ├── ReactivateAccountCommandHandlerTests.cs
+│   │   │   └── ReactivateAccountCommandValidatorTests.cs
 │   │   ├── RefreshToken/
 │   │   │   ├── RefreshTokenCommandHandlerTests.cs
 │   │   │   └── RefreshTokenCommandValidatorTests.cs
@@ -216,14 +287,29 @@ back_Csharp_advance/
 │   │   ├── SendChatMessage/
 │   │   │   ├── SendChatMessageCommandHandlerTests.cs
 │   │   │   └── SendChatMessageCommandValidatorTests.cs
-│   │   └── SetPassword/
-│   │       ├── SetPasswordCommandHandlerTests.cs
-│   │       └── SetPasswordCommandValidatorTests.cs
+│   │   ├── SetPassword/
+│   │   │   ├── SetPasswordCommandHandlerTests.cs
+│   │   │   └── SetPasswordCommandValidatorTests.cs
+│   │   └── UpdateProfile/
+│   │       ├── UpdateProfileCommandHandlerTests.cs
+│   │       └── UpdateProfileCommandValidatorTests.cs
 │   ├── Exceptions/
 │   │   └── ValidationExceptionTests.cs
-│   └── Helpers/
-│       └── ChannelNameBuilderTests.cs
+│   ├── Helpers/
+│   │   └── ChannelNameBuilderTests.cs
+│   └── Queries/
+│       ├── GetMyProfile/
+│       │   ├── GetMyProfileQueryHandlerTests.cs
+│       │   └── GetMyProfileQueryValidatorTests.cs
+│       ├── GetUserProfile/
+│       │   ├── GetUserProfileQueryHandlerTests.cs
+│       │   └── GetUserProfileQueryValidatorTests.cs
+│       └── GetUserRole/
+│           ├── GetUserRoleQueryHandlerTests.cs
+│           └── GetUserRoleQueryValidatorTests.cs
 ├── API.IntegrationTests/
+│   ├── Account/
+│   │   └── AccountTests.cs
 │   ├── Auth/
 │   │   ├── LoginTests.cs
 │   │   └── RegisterTests.cs
@@ -234,11 +320,14 @@ back_Csharp_advance/
 │   │   ├── CustomWebApplicationFactory.cs
 │   │   ├── IntegrationTestBase.cs
 │   │   └── SignalRTestBase.cs
-│   └── Notifications/
-│       └── PersonalNotificationTests.cs
+│   ├── Notifications/
+│   │   └── PersonalNotificationTests.cs
+│   └── Roles/
+│       └── RoleTests.cs
 ├── Domain.Tests/
 │   └── Entities/
-│       └── RevokedTokenTests.cs
+│       ├── RevokedTokenTests.cs
+│       └── UserProfileTests.cs
 └── compose.yaml
 ```
 <!-- STRUCTURE:END -->

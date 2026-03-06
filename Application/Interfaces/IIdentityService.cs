@@ -19,4 +19,7 @@ public interface IIdentityService
     Task<bool> HasPasswordAsync(Guid userId, CancellationToken cancellationToken = default);
 
     Task SetPasswordAsync(Guid userId, string password, CancellationToken cancellationToken = default);
+    Task ChangePasswordAsync(Guid userId, string currentPassword, string newPassword, CancellationToken cancellationToken = default);
+    Task ReplaceRoleAsync(Guid userId, string newRole, CancellationToken cancellationToken = default);
+    Task<int> CountUsersInRoleAsync(string role, CancellationToken cancellationToken = default);
 }

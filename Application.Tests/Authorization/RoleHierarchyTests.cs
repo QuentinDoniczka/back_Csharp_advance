@@ -63,10 +63,24 @@ public sealed class RoleHierarchyTests
     }
 
     [Fact]
+    public void TryGetLevel_Moderator_ReturnsModeratorLevel()
+    {
+        // Arrange
+        var roleName = AppRoles.Moderator;
+
+        // Act
+        var found = RoleHierarchy.TryGetLevel(roleName, out var level);
+
+        // Assert
+        Assert.True(found);
+        Assert.Equal(RoleLevel.Moderator, level);
+    }
+
+    [Fact]
     public void TryGetLevel_UnknownRole_ReturnsFalse()
     {
         // Arrange
-        var roleName = "Moderator";
+        var roleName = "UnknownRole";
 
         // Act
         var found = RoleHierarchy.TryGetLevel(roleName, out _);

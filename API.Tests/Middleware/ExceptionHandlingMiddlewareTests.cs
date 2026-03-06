@@ -178,10 +178,74 @@ public sealed class ExceptionHandlingMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_ConflictException_Returns409StatusCode()
+    {
+        // Arrange
+        RequestDelegate next = _ => throw new ConflictException("Already exists");
+        var middleware = new ExceptionHandlingMiddleware(next, _logger);
+        var context = CreateHttpContextWithBodyStream();
+
+        // Act
+        await middleware.InvokeAsync(context);
+
+        // Assert
+        Assert.Equal(StatusCodes.Status409Conflict, context.Response.StatusCode);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_ConflictException_ResponseContainsConflictTitle()
+    {
+        // Arrange
+        RequestDelegate next = _ => throw new ConflictException("Already exists");
+        var middleware = new ExceptionHandlingMiddleware(next, _logger);
+        var context = CreateHttpContextWithBodyStream();
+
+        // Act
+        await middleware.InvokeAsync(context);
+
+        // Assert
+        var body = await ReadResponseBodyAsync(context);
+        Assert.Contains("Conflict", body);
+        Assert.Contains("Already exists", body);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_InvalidOperationException_Returns409StatusCode()
+    {
+        // Arrange
+        RequestDelegate next = _ => throw new InvalidOperationException("Domain invariant violated");
+        var middleware = new ExceptionHandlingMiddleware(next, _logger);
+        var context = CreateHttpContextWithBodyStream();
+
+        // Act
+        await middleware.InvokeAsync(context);
+
+        // Assert
+        Assert.Equal(StatusCodes.Status409Conflict, context.Response.StatusCode);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_InvalidOperationException_ResponseContainsMessage()
+    {
+        // Arrange
+        RequestDelegate next = _ => throw new InvalidOperationException("Domain invariant violated");
+        var middleware = new ExceptionHandlingMiddleware(next, _logger);
+        var context = CreateHttpContextWithBodyStream();
+
+        // Act
+        await middleware.InvokeAsync(context);
+
+        // Assert
+        var body = await ReadResponseBodyAsync(context);
+        Assert.Contains("Conflict", body);
+        Assert.Contains("Domain invariant violated", body);
+    }
+
+    [Fact]
     public async Task InvokeAsync_UnhandledException_Returns500StatusCode()
     {
         // Arrange
-        RequestDelegate next = _ => throw new InvalidOperationException("Something went wrong");
+        RequestDelegate next = _ => throw new ArithmeticException("Something went wrong");
         var middleware = new ExceptionHandlingMiddleware(next, _logger);
         var context = CreateHttpContextWithBodyStream();
 
@@ -196,7 +260,7 @@ public sealed class ExceptionHandlingMiddlewareTests
     public async Task InvokeAsync_UnhandledException_ResponseContainsGenericErrorMessage()
     {
         // Arrange
-        RequestDelegate next = _ => throw new InvalidOperationException("Something went wrong");
+        RequestDelegate next = _ => throw new ArithmeticException("Something went wrong");
         var middleware = new ExceptionHandlingMiddleware(next, _logger);
         var context = CreateHttpContextWithBodyStream();
 
@@ -212,7 +276,7 @@ public sealed class ExceptionHandlingMiddlewareTests
     public async Task InvokeAsync_UnhandledException_LogsError()
     {
         // Arrange
-        var unhandledException = new InvalidOperationException("Something went wrong");
+        var unhandledException = new ArithmeticException("Something went wrong");
         RequestDelegate next = _ => throw unhandledException;
         var middleware = new ExceptionHandlingMiddleware(next, _logger);
         var context = CreateHttpContextWithBodyStream();

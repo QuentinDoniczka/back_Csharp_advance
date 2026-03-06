@@ -2,6 +2,7 @@ namespace BackBase.Application.Tests.Commands.Register;
 
 using BackBase.Application.Commands.Register;
 using BackBase.Domain.Constants;
+using BackBase.Domain.Interfaces;
 using BackBase.Application.DTOs.Output;
 using BackBase.Application.Interfaces;
 using NSubstitute;
@@ -10,6 +11,7 @@ using NSubstitute.ExceptionExtensions;
 public sealed class RegisterCommandHandlerTests
 {
     private readonly IIdentityService _identityService;
+    private readonly IUserProfileRepository _userProfileRepository;
     private readonly RegisterCommandHandler _handler;
 
     private const string ValidEmail = "player@example.com";
@@ -18,7 +20,8 @@ public sealed class RegisterCommandHandlerTests
     public RegisterCommandHandlerTests()
     {
         _identityService = Substitute.For<IIdentityService>();
-        _handler = new RegisterCommandHandler(_identityService);
+        _userProfileRepository = Substitute.For<IUserProfileRepository>();
+        _handler = new RegisterCommandHandler(_identityService, _userProfileRepository);
     }
 
     [Fact]
@@ -132,5 +135,25 @@ public sealed class RegisterCommandHandlerTests
         await _identityService
             .Received(1)
             .RegisterAsync(ValidEmail, ValidPassword, token);
+    }
+
+    [Fact]
+    public async Task Handle_ValidCommand_CreatesUserProfile()
+    {
+        // Arrange
+        var command = new RegisterCommand(ValidEmail, ValidPassword);
+        var userId = Guid.NewGuid();
+
+        _identityService
+            .RegisterAsync(ValidEmail, ValidPassword, Arg.Any<CancellationToken>())
+            .Returns(new IdentityUserResult(userId, ValidEmail));
+
+        // Act
+        await _handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        await _userProfileRepository
+            .Received(1)
+            .AddAsync(Arg.Is<BackBase.Domain.Entities.UserProfile>(p => p.UserId == userId && p.DisplayName == "player"), Arg.Any<CancellationToken>());
     }
 }

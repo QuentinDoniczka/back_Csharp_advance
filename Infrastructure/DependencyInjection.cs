@@ -4,7 +4,6 @@ using BackBase.Application.Constants;
 using BackBase.Application.Interfaces;
 using BackBase.Domain.Interfaces;
 using BackBase.Infrastructure.Authentication;
-using BackBase.Infrastructure.Authorization;
 using BackBase.Infrastructure.Chat;
 using BackBase.Infrastructure.Data;
 using BackBase.Infrastructure.Repositories;
@@ -71,11 +70,11 @@ public static class DependencyInjection
             .SetFallbackPolicy(new AuthorizationPolicyBuilder()
                 .RequireAuthenticatedUser()
                 .Build());
-        services.AddSingleton<IAuthorizationHandler, MinimumRoleHandler>();
 
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<IRevokedTokenRepository, RevokedTokenRepository>();
+        services.AddScoped<IUserProfileRepository, UserProfileRepository>();
 
         services.Configure<GoogleAuthSettings>(configuration.GetSection(GoogleAuthSettings.SectionName));
         services.AddScoped<IGoogleTokenValidator, GoogleTokenValidator>();

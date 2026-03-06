@@ -128,6 +128,35 @@ public sealed class IdentityService : IIdentityService
         ThrowIfFailed(result);
     }
 
+    public async Task ChangePasswordAsync(Guid userId, string currentPassword, string newPassword, CancellationToken cancellationToken = default)
+    {
+        var user = await FindUserByIdOrThrowAsync(userId).ConfigureAwait(false);
+
+        var result = await _userManager.ChangePasswordAsync(user, currentPassword, newPassword).ConfigureAwait(false);
+        ThrowIfFailed(result);
+    }
+
+    public async Task ReplaceRoleAsync(Guid userId, string newRole, CancellationToken cancellationToken = default)
+    {
+        var user = await FindUserByIdOrThrowAsync(userId).ConfigureAwait(false);
+
+        var currentRoles = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
+        if (currentRoles.Count > 0)
+        {
+            var removeResult = await _userManager.RemoveFromRolesAsync(user, currentRoles).ConfigureAwait(false);
+            ThrowIfFailed(removeResult);
+        }
+
+        var addResult = await _userManager.AddToRoleAsync(user, newRole).ConfigureAwait(false);
+        ThrowIfFailed(addResult);
+    }
+
+    public async Task<int> CountUsersInRoleAsync(string role, CancellationToken cancellationToken = default)
+    {
+        var users = await _userManager.GetUsersInRoleAsync(role).ConfigureAwait(false);
+        return users.Count;
+    }
+
     private async Task<ApplicationUser?> FindUserByIdAsync(Guid userId)
     {
         return await _userManager.FindByIdAsync(userId.ToString()).ConfigureAwait(false);

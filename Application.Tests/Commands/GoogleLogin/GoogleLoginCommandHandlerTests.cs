@@ -5,6 +5,7 @@ using BackBase.Application.DTOs.Output;
 using BackBase.Application.Exceptions;
 using BackBase.Application.Interfaces;
 using BackBase.Domain.Constants;
+using BackBase.Domain.Interfaces;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -13,6 +14,7 @@ public sealed class GoogleLoginCommandHandlerTests
     private readonly IGoogleTokenValidator _googleTokenValidator;
     private readonly IIdentityService _identityService;
     private readonly IJwtTokenService _jwtTokenService;
+    private readonly IUserProfileRepository _userProfileRepository;
     private readonly GoogleLoginCommandHandler _handler;
 
     private const string ValidIdToken = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.valid-google-token";
@@ -27,7 +29,8 @@ public sealed class GoogleLoginCommandHandlerTests
         _googleTokenValidator = Substitute.For<IGoogleTokenValidator>();
         _identityService = Substitute.For<IIdentityService>();
         _jwtTokenService = Substitute.For<IJwtTokenService>();
-        _handler = new GoogleLoginCommandHandler(_googleTokenValidator, _identityService, _jwtTokenService);
+        _userProfileRepository = Substitute.For<IUserProfileRepository>();
+        _handler = new GoogleLoginCommandHandler(_googleTokenValidator, _identityService, _jwtTokenService, _userProfileRepository);
     }
 
     private void SetupValidGoogleLoginFlow(Guid userId, DateTime accessExpiry, IReadOnlyList<string>? roles = null, bool isNewAccount = false)
@@ -323,5 +326,53 @@ public sealed class GoogleLoginCommandHandlerTests
         _jwtTokenService
             .DidNotReceive()
             .GenerateRefreshToken(Arg.Any<Guid>(), Arg.Any<string>());
+    }
+
+    [Fact]
+    public async Task Handle_NewAccount_CreatesUserProfile()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        SetupValidGoogleLoginFlow(userId, DateTime.UtcNow.AddHours(1), isNewAccount: true);
+        var command = new GoogleLoginCommand(ValidIdToken);
+
+        // Act
+        await _handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        await _userProfileRepository
+            .Received(1)
+            .AddAsync(Arg.Is<BackBase.Domain.Entities.UserProfile>(p => p.UserId == userId), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Handle_ExistingDeactivatedAccount_ThrowsAuthenticationException()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+
+        _googleTokenValidator
+            .ValidateAsync(ValidIdToken, Arg.Any<CancellationToken>())
+            .Returns(new GoogleUserInfo(GoogleEmail, GoogleUserId, GoogleUserName));
+
+        _identityService
+            .FindOrCreateExternalUserAsync(GoogleEmail, ExternalProviders.Google, GoogleUserId, Arg.Any<CancellationToken>())
+            .Returns(new ExternalLoginResult(userId, GoogleEmail, false));
+
+        _identityService
+            .IsBannedAsync(userId, Arg.Any<CancellationToken>())
+            .Returns(false);
+
+        var deactivatedProfile = BackBase.Domain.Entities.UserProfile.Create(userId, GoogleEmail);
+        deactivatedProfile.Deactivate();
+        _userProfileRepository.GetByUserIdAsync(userId, Arg.Any<CancellationToken>())
+            .Returns(deactivatedProfile);
+
+        var command = new GoogleLoginCommand(ValidIdToken);
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<AuthenticationException>(
+            () => _handler.Handle(command, CancellationToken.None));
+        Assert.Equal("Account is deactivated", exception.Message);
     }
 }

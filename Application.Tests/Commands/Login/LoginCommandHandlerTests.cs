@@ -2,6 +2,7 @@ namespace BackBase.Application.Tests.Commands.Login;
 
 using BackBase.Application.Commands.Login;
 using BackBase.Domain.Constants;
+using BackBase.Domain.Interfaces;
 using BackBase.Application.DTOs.Output;
 using BackBase.Application.Exceptions;
 using BackBase.Application.Interfaces;
@@ -12,6 +13,7 @@ public sealed class LoginCommandHandlerTests
 {
     private readonly IIdentityService _identityService;
     private readonly IJwtTokenService _jwtTokenService;
+    private readonly IUserProfileRepository _userProfileRepository;
     private readonly LoginCommandHandler _handler;
 
     private const string ValidEmail = "player@example.com";
@@ -23,7 +25,8 @@ public sealed class LoginCommandHandlerTests
     {
         _identityService = Substitute.For<IIdentityService>();
         _jwtTokenService = Substitute.For<IJwtTokenService>();
-        _handler = new LoginCommandHandler(_identityService, _jwtTokenService);
+        _userProfileRepository = Substitute.For<IUserProfileRepository>();
+        _handler = new LoginCommandHandler(_identityService, _jwtTokenService, _userProfileRepository);
     }
 
     private void SetupValidLoginFlow(Guid userId, string email, DateTime accessExpiry)
@@ -190,5 +193,27 @@ public sealed class LoginCommandHandlerTests
         await _identityService
             .Received(1)
             .ValidateCredentialsAsync(ValidEmail, ValidPassword, token);
+    }
+
+    [Fact]
+    public async Task Handle_DeactivatedAccount_ThrowsAuthenticationException()
+    {
+        // Arrange
+        var command = new LoginCommand(ValidEmail, ValidPassword);
+        var userId = Guid.NewGuid();
+
+        _identityService
+            .ValidateCredentialsAsync(ValidEmail, ValidPassword, Arg.Any<CancellationToken>())
+            .Returns(new IdentityUserResult(userId, ValidEmail));
+
+        var deactivatedProfile = BackBase.Domain.Entities.UserProfile.Create(userId, ValidEmail);
+        deactivatedProfile.Deactivate();
+        _userProfileRepository.GetByUserIdAsync(userId, Arg.Any<CancellationToken>())
+            .Returns(deactivatedProfile);
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<AuthenticationException>(
+            () => _handler.Handle(command, CancellationToken.None));
+        Assert.Equal("Account is deactivated", exception.Message);
     }
 }

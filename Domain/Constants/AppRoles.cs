@@ -5,6 +5,7 @@ namespace BackBase.Domain.Constants;
 public static class AppRoles
 {
     public const string Member = nameof(RoleLevel.Member);
+    public const string Moderator = nameof(RoleLevel.Moderator);
     public const string Admin = nameof(RoleLevel.Admin);
     public const string SuperAdmin = nameof(RoleLevel.SuperAdmin);
 

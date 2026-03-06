@@ -1,6 +1,8 @@
+using BackBase.API.Authorization;
 using BackBase.Application;
 using BackBase.API.Middleware;
 using BackBase.Infrastructure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,6 +32,7 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddSingleton<IAuthorizationHandler, MinimumRoleHandler>();
 
 builder.Services.AddCors(options =>
 {

@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 public sealed class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
 {
     public DbSet<RevokedToken> RevokedTokens => Set<RevokedToken>();
+    public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
 
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
