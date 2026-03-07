@@ -8,7 +8,7 @@ Communication : francais avec l'utilisateur, anglais avec les agents.
 
 | Agent | Role |
 |-------|------|
-| `git-backend` | Verifier l'etat du repo et commiter les changements non versionnes si necessaire. Ne push jamais sauf demande explicite. |
+| `git-backend` | Gestion git complete : verifier l'etat du repo, preparer les branches feature depuis main, commiter (conventional commits), push sur demande. Ne push jamais sauf demande explicite. |
 | `leaddev-backend` | Analyser la structure 4 couches, planifier l'architecture, lister classes/interfaces a creer ou modifier |
 | `dev-backend` | Implementer le code (classes, interfaces, handlers, controllers, DTOs, entities, repositories...) |
 | `refacto-backend` | Refactorer, optimiser, nettoyer, appliquer les patterns, corriger les violations de couches |
@@ -21,7 +21,14 @@ Communication : francais avec l'utilisateur, anglais avec les agents.
 
 ## Workflow
 
-0. **Commiter l'existant** — **TOUJOURS en premier**, avant toute analyse ou modification : delegue a `git-backend` pour verifier s'il y a des changements non commites. S'il y en a, l'agent commit automatiquement sans demander approbation (ca sauvegarde le travail precedent). Si le repo est propre, on passe directement a la suite. **Ne jamais sauter cette etape.**
+0. **Preparer la branche feature** — **TOUJOURS en premier**, avant toute analyse ou modification :
+   a) Delegue a `git-backend` avec la tache "prepare-feature-branch" et une description courte de la feature demandee.
+   b) L'agent verifie la branche courante :
+      - Si on est sur main → pull et cree la branche feature.
+      - Si on est sur une autre branche avec du travail non commite/non pousse → **l'agent s'arrete et rapporte la situation**. Presente le probleme a l'utilisateur et demande quoi faire (commit+push le travail en cours ? stash ? abandonner ?).
+      - Si on est sur une autre branche mais tout est propre et pousse → switch sur main, pull, cree la branche feature.
+   c) La branche suit la convention : `<type>/<short-description>` (ex: `feature/quest-system`, `fix/login-token-expiry`).
+   **Ne jamais sauter cette etape.**
 1. **Comprendre** — Reformule brievement. Pose des questions **seulement si bloquant**.
 2. **Challenger** — **TOUJOURS.** Delegue a `brainstorm-backend` AVANT toute planification. L'agent doit :
    - Evaluer si la demande est pertinente dans le contexte du projet
@@ -87,7 +94,7 @@ Communication : francais avec l'utilisateur, anglais avec les agents.
    ```
 
    Si une section est vide (ex: aucun fichier supprime), ne pas l'afficher.
-   **Ne PAS commiter** — l'utilisateur testera d'abord et commitera lui-meme quand il sera satisfait.
+   **Apres le rapport** — delegue a `git-backend` avec la tache "commit" pour commiter tous les changements avec un message Conventional Commits. Puis **demande a l'utilisateur** s'il veut push la branche. Si oui, delegue a `git-backend` avec la tache "push" (qui sync automatiquement avec main avant de push). Si le sync detecte des conflits, delegue a `dev-backend` pour les resoudre, puis relance le push.
 
 ## Agents hors chaine (manuels)
 
@@ -107,6 +114,10 @@ Ces agents ne sont **jamais** lances automatiquement dans le workflow. L'utilisa
 - **Toujours passer le contexte** aux agents.
 - **Respecter les 4 couches** — API, Application, Domain, Infrastructure. Toujours verifier que le code est place dans la bonne couche.
 - **Boucle dev↔test** — Si `test-backend` rapporte un bug code source, relancer `dev-backend` avec le rapport d'erreur exact, puis `test-backend` a nouveau. Max 2 iterations.
+- **Conventional Commits** — tous les commits suivent le format `<type>(<scope>): <description>`. Types : feat, fix, refactor, test, chore, docs, style.
+- **Branches feature** — toujours travailler sur une branche feature, jamais directement sur main. Nommage : `<type>/<short-description>`.
+- **Push explicite** — ne jamais push sans l'approbation de l'utilisateur.
+- **Merge strategy** — pour sync avec main, toujours `git merge origin/main` (jamais rebase). Les merge commits sur la feature branch sont normaux — ils disparaissent au squash merge de la PR. Configurer la PR GitHub/GitLab en **Squash and merge**.
 
 ## Format de delegation
 

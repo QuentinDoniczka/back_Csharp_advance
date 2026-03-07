@@ -84,6 +84,15 @@ Use project context to decide:
 - **Missing validators** — Commands/Queries without FluentValidation validators
 - **Direct use of DbContext outside Infrastructure** — Must go through repositories
 
+### MEDIUM — REST API Consistency
+
+- **Inconsistent status codes across controllers** — All creation endpoints should return 201, all no-body mutations 204, etc.
+- **Missing `[ProducesResponseType]`** — All actions must document their response types for OpenAPI
+- **Mixed `IActionResult`/`ActionResult<T>` patterns** — Should be consistent: `ActionResult<T>` with body, `IActionResult` without
+- **Route naming inconsistencies** — All routes should follow the same convention (plural nouns, kebab-case)
+- **Non-ProblemDetails error responses** — Error format should be RFC 7807 ProblemDetails everywhere
+- **Semantically incorrect routes** — Routes that don't model the actual resource (e.g., `api/roles/{userId}` instead of `api/users/{userId}/role`)
+
 ### LOW — Naming, conventions, cleanup
 
 - **File name doesn't match class name**

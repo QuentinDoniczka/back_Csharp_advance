@@ -71,6 +71,15 @@ If a file is in the wrong layer → **move it and fix namespaces BEFORE any othe
 - **Synchronous I/O** — `DbContext.SaveChanges()` → `SaveChangesAsync()`, `File.ReadAllText` → `File.ReadAllTextAsync`
 - **Duplicated logic across handlers (DRY)** — If 2+ handlers contain near-identical code (e.g., token validation + claim extraction, entity creation boilerplate), extract into a shared service method or a private helper. Grep for the duplicated pattern across all handlers to find all occurrences.
 
+### HIGH — REST API Anti-Patterns
+
+- **200 on resource creation** — `POST` that creates a resource must return `201 Created` + `Location` header, not `Ok()`
+- **Missing `[ProducesResponseType]`** — Every controller action must declare all possible response types and status codes for OpenAPI documentation
+- **`IActionResult` with body** — Actions returning a response body must use `ActionResult<T>` for type safety and Swagger. `IActionResult` only for `NoContent()`
+- **Verb-based routes** — Routes like `/api/users/deactivate` should be resource-oriented (`PATCH /api/users/{id}` with state change). Auth endpoints (`login`, `logout`, `register`) are an accepted exception.
+- **Custom error objects instead of ProblemDetails** — Error responses must use ASP.NET Core built-in `ProblemDetails` (RFC 7807), not anonymous objects or custom DTOs
+- **Non-sealed controllers** — Controllers should be `sealed` classes
+
 ### HIGH — Clean Code Readability
 
 - **Too many parameters** — Method with 3+ parameters → regroup dans un record/object (`CreateUser(string name, string email, string role, bool isActive)` → `CreateUser(CreateUserRequest request)`). Exception : 2 params simples et cohérents (ex: `GetById(Guid id, CancellationToken ct)`) est OK.

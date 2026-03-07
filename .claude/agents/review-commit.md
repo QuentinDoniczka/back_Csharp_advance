@@ -47,6 +47,12 @@ Dependency flow: API -> Application -> Domain <- Infrastructure
 - **Entities with public setters** — must use private setters + factory methods (includes Identity entities)
 - **Fat Controllers** — >30 lines per action or contains business logic
 - **DRY violations** — duplicated logic across 2+ handlers or services. Grep for similar patterns in other files to confirm.
+- **REST API violations (controllers only)** — If changed files include controllers, check:
+  - Correct status codes per HTTP verb (201 for creation + Location header, 204 for no-body mutations)
+  - `[ProducesResponseType]` on every action with all possible status codes
+  - `ActionResult<T>` for typed responses, `IActionResult` only for NoContent
+  - Route conventions: plural nouns, kebab-case, no verbs (auth endpoints excepted)
+  - Error responses use ProblemDetails, not custom objects
 
 ### MEDIUM
 

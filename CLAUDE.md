@@ -48,6 +48,99 @@ This backend exposes a REST API consumed by a frontend client. It handles all ga
 
 ---
 
+## REST API Standards
+
+### HTTP Verbs
+
+| Verb | Purpose | Returns |
+|------|---------|---------|
+| `GET` | Read resource(s). Never mutates. | `200 OK` |
+| `POST` | Create a resource (returns `201` + `Location` header) or trigger an action. Auth endpoints (`login`, `logout`, `register`) are an accepted exception. | `201 Created` |
+| `PUT` | Full replacement of a resource. | `200 OK` or `204 No Content` |
+| `PATCH` | Partial update. | `200 OK` or `204 No Content` |
+| `DELETE` | Remove a resource. | `204 No Content` |
+
+### Status Codes
+
+| Code | Meaning | When to use |
+|------|---------|-------------|
+| `200 OK` | Successful read or update with body | GET, PUT/PATCH returning updated resource |
+| `201 Created` | Resource created. **MUST** include `Location` header pointing to the new resource. | POST that creates a resource |
+| `204 No Content` | Successful mutation with no body | Logout, delete, change-password, etc. |
+| `400 Bad Request` | Validation errors (FluentValidation) | Invalid input |
+| `401 Unauthorized` | Missing or invalid authentication | No/invalid token |
+| `403 Forbidden` | Authenticated but not authorized | Insufficient role/permissions |
+| `404 Not Found` | Resource does not exist | Entity lookup fails |
+| `409 Conflict` | Resource already exists or state conflict | Duplicate creation, concurrency |
+| `500 Internal Server Error` | Unhandled exception | Global exception middleware |
+
+### Route Conventions
+
+- Plural nouns for resources: `api/users`, `api/quests`, `api/guilds`
+- Kebab-case for multi-word segments: `api/guild-members`, `api/quest-rewards`
+- No verbs in URLs -- model as resources. Exception: auth endpoints (`login`, `logout`, `register`) are industry-accepted pragmatic conventions.
+- Sub-resources with nesting: `api/users/{userId}/profile`, `api/guilds/{guildId}/members`
+- Max 2 levels of nesting. Beyond that, promote to top-level resource.
+
+### Controller Standards
+
+- `[ApiController]` + `[Route("api/[controller]")]` or explicit route
+- Controllers must be `sealed`
+- Constructor injection of `IMediator` only (or `ISender`)
+- Thin dispatch only -- no business logic, no try/catch, no validation
+- `ActionResult<T>` for actions that return a body
+- `IActionResult` only for `NoContent()` responses
+- `[ProducesResponseType]` required on every action -- document ALL possible status codes
+- `CancellationToken` on every async action
+
+### Error Responses
+
+- Use ASP.NET Core built-in `ProblemDetails` (RFC 7807)
+- Content-Type: `application/problem+json`
+- Include `type`, `title`, `status`, `detail` fields
+- Validation errors use `ProblemDetails` with `errors` extension
+
+### DTO Conventions (API Layer)
+
+- Request DTOs: `{Action}{Resource}RequestDto` (e.g., `CreateQuestRequestDto`)
+- Response DTOs: `{Resource}ResponseDto` (e.g., `QuestResponseDto`)
+- API DTOs live in `API/DTOs/` -- they map to/from Application DTOs
+- Never expose Application or Domain types directly in API responses
+
+### Pagination (for collection endpoints)
+
+- Query parameters: `?page=1&pageSize=20`
+- Default page size: 20, max: 100
+- Response envelope: `{ items: [...], page: int, pageSize: int, totalCount: int, hasNextPage: bool }`
+
+### ProducesResponseType Examples
+
+```csharp
+// GET -- read
+[ProducesResponseType(typeof(QuestResponseDto), StatusCodes.Status200OK)]
+[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+[ProducesResponseType(StatusCodes.Status404NotFound)]
+
+// POST -- create
+[ProducesResponseType(typeof(QuestResponseDto), StatusCodes.Status201Created)]
+[ProducesResponseType(StatusCodes.Status400BadRequest)]
+[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+[ProducesResponseType(StatusCodes.Status409Conflict)]
+
+// PUT/PATCH -- update
+[ProducesResponseType(typeof(QuestResponseDto), StatusCodes.Status200OK)]
+[ProducesResponseType(StatusCodes.Status400BadRequest)]
+[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+[ProducesResponseType(StatusCodes.Status404NotFound)]
+
+// DELETE -- remove
+[ProducesResponseType(StatusCodes.Status204NoContent)]
+[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+[ProducesResponseType(StatusCodes.Status404NotFound)]
+```
+
+---
+
 ## Communication
 
 - If a request involves bad practices, poor architecture, or potential issues: speak up immediately and suggest better alternatives.

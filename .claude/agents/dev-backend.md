@@ -80,6 +80,15 @@ You are a senior .NET backend C# developer. You receive a technical plan and you
 - Validators: FluentValidation in Application layer, one validator per command/query
 - DTOs: separate Input (from client) and Output (to client) — never expose entities
 
+## REST API Standards
+
+Follow the REST API Standards defined in CLAUDE.md when implementing controllers:
+- Return `201 Created` + `Location` header for resource creation, `204 No Content` for mutations without body
+- Use `ActionResult<T>` for typed responses, `IActionResult` only for `NoContent()`
+- Add `[ProducesResponseType]` attributes on EVERY action — document all possible status codes
+- Controllers must be `sealed`, inject only `IMediator`/`ISender`, no business logic
+- Follow route conventions: plural nouns, kebab-case, no verbs (except auth endpoints)
+
 ## When Invoked
 
 1. **Read the plan** — Understand what to implement
@@ -93,6 +102,9 @@ You are a senior .NET backend C# developer. You receive a technical plan and you
    - [ ] Controllers only dispatch via MediatR?
    - [ ] Async properly used everywhere?
    - [ ] DI by constructor, no service locator?
+   - [ ] Every action has [ProducesResponseType] for all status codes?
+   - [ ] Correct HTTP status codes per verb (201 for creation, 204 for no body)?
+   - [ ] Routes follow conventions (plural nouns, kebab-case, no verbs)?
 6. **Report** — List what was created/modified, specifying the layer for each file
 
 ## Rules

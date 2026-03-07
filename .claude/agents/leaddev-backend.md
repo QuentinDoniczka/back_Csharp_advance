@@ -80,6 +80,16 @@ For each class:
 - **Key members**: signatures
 - **Dependencies**: what it depends on (must respect layer rules)
 
+## API Endpoints (if applicable)
+For each endpoint, specify:
+- **HTTP Verb**: GET / POST / PUT / PATCH / DELETE
+- **Route**: following conventions (plural nouns, kebab-case, no verbs)
+- **Request DTO**: name and key fields
+- **Response DTO**: name and key fields
+- **Status codes**: all possible (200/201/204, 400, 401, 403, 404, 409)
+- **[ProducesResponseType]**: list for each action
+- **Auth**: required role/policy
+
 ## Layer Integrity Check
 [For EACH proposed class, verify:
  - It is in the correct layer
@@ -99,3 +109,4 @@ For each class:
 - Keep it minimal — no speculative abstractions
 - Domain layer MUST have zero external dependencies
 - Always specify which layer a class belongs to
+- When planning API endpoints, follow the REST API Standards defined in CLAUDE.md — specify verbs, routes, status codes, and ProducesResponseType for each endpoint
